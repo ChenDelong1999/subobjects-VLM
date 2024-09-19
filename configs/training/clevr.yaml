@@ -1,0 +1,30 @@
+# Tokenizer (in case LLM is randomly initialized from config)
+  tokenizer_path: 'microsoft/Phi-3-mini-128k-instruct'
+
+# Training
+  output_dir: 'runs'
+  eval_samples: 1000
+
+# Training Hyperparameters
+  training_args:
+    logging_steps: 1
+    save_steps: 1000
+    save_total_limit: 2
+
+    learning_rate: !!float 1e-3
+    lr_scheduler_type: 'cosine'
+    warmup_steps: 500
+    weight_decay: 0.05
+
+  # speed-up training
+    bf16: True
+    torch_compile: False
+    ddp_find_unused_parameters: True
+    dataloader_prefetch_factor: 4
+
+  # evalutaion
+    eval_strategy: 'steps'
+    eval_steps: 1000
+    eval_on_start: False
+    prediction_loss_only: False
+    label_names: []
