@@ -67,6 +67,7 @@ class VisualTokenEmbedding(torch.nn.Module):
     def mask_roi_pooling(self, batch_features, batch_masks):
         N, C, H, W = batch_features.shape
         M = batch_masks.shape[1]
+        dtype = batch_features.dtype
 
         # Downsample masks to feature map resolution -> (N, M, H, W)
         batch_masks = F.interpolate(
@@ -79,7 +80,7 @@ class VisualTokenEmbedding(torch.nn.Module):
 
         # Perform ROIAlign for features
         roi_features = ops.roi_align(
-            batch_features, 
+            batch_features.float(), 
             roi_boxes, 
             output_size=(self.config.token_resolution, self.config.token_resolution),
             sampling_ratio=1
@@ -96,7 +97,7 @@ class VisualTokenEmbedding(torch.nn.Module):
         roi_features = roi_features * roi_masks
         embeddings = roi_features.view(N, M, -1)
 
-        return torch.stack(roi_boxes), roi_masks[:, :, 0], embeddings
+        return torch.stack(roi_boxes), roi_masks[:, :, 0], embeddings.to(dtype)
     
 
     def get_roi_boxes_from_masks(self, batch_masks):
