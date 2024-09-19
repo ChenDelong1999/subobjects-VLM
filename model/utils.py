@@ -46,7 +46,8 @@ def create_textual_tokenizer(tokenizer_path, model_max_length):
     tokenizer.pad_token = '<unk>'
 
     tokenizer.pad_token_id = tokenizer.convert_tokens_to_ids(tokenizer.pad_token)
-    tokenizer.model_max_length = model_max_length
+    if model_max_length is not None:
+        tokenizer.model_max_length = model_max_length
 
     return tokenizer
 

@@ -99,10 +99,7 @@ class SubobjectVLM(PreTrainedModel):
     def insert_visual_tokens(self, batch_input_ids, batch_n_visual_tokens):
         
         batch_input_ids = batch_input_ids.to('cpu')
-
-        batch_processed_input_ids = []
-        batch_position_idx = []
-        batch_content_idx = []
+        batch_processed_input_ids, batch_position_idx, batch_content_idx = [], [], []
 
         start_token = torch.full((1,), self.token_ids['<|startofimage|>'], dtype=torch.long)
         end_token = torch.full((1,), self.token_ids['<|endofimage|>'], dtype=torch.long)
@@ -156,33 +153,28 @@ class SubobjectVLM(PreTrainedModel):
         masks = masks.to(self.dtype).to(self.device).detach()
         features = features.to(self.dtype).to(self.device).detach()
 
-        box_embeds = self.box_embed(boxes)
-        mask_embeds = self.mask_embed(masks.view(masks.shape[0], masks.shape[1], -1))
-        feature_embeds = self.feature_embed(features)
-        
-        return (box_embeds, mask_embeds, feature_embeds), (boxes, masks, features)
+        not_padding = (boxes.sum(dim=-1) != 0).unsqueeze(-1)
 
+        box_embeds = self.box_embed(boxes) * not_padding
+        mask_embeds = self.mask_embed(masks.view(masks.shape[0], masks.shape[1], -1)) * not_padding
+        feature_embeds = self.feature_embed(features) * not_padding
+        
+        return box_embeds, mask_embeds, feature_embeds, features, not_padding.sum(dim=-1).cpu().numpy()
 
 
     def prepare_inputs_embeds(self, input_ids, image, masks):
-        
+
         assert len(input_ids) == len(image) == len(masks); f"Inputs batch size mismatch: {len(input_ids)}, {len(image)}, {len(masks)}"
 
-        input_ids, position_idx, content_idx = self.insert_visual_tokens(input_ids, [len(mask) for mask in masks])
-
+        box_embeds, mask_embeds, feature_embeds, features, n_visual_tokens = self.prepare_visual_embeds(image, masks)
+        input_ids, position_idx, content_idx = self.insert_visual_tokens(input_ids,  n_visual_tokens)
         inputs_embeds = self.get_input_embeddings()(input_ids)
-        (box_embeds, mask_embeds, feature_embeds), (boxes, masks, features) = self.prepare_visual_embeds(image, masks)
 
         # add visual embeddings to textual embeddings
         for i in range(len(input_ids)):
-
-            # context embeddings
             inputs_embeds[i, content_idx[i]] += (box_embeds[i] + mask_embeds[i] + feature_embeds[i]).to(self.dtype) 
-
-            # query embeddings
             if self.config.insert_queries:
                 inputs_embeds[i, position_idx[i]] += box_embeds[i].to(self.dtype) 
-
         inputs_embeds = inputs_embeds.contiguous()
 
         # labels for textual next token prediction 
@@ -194,18 +186,18 @@ class SubobjectVLM(PreTrainedModel):
 
         return inputs_embeds, {
             'lm_labels': lm_labels,
-            'segment_features': features,
+            'features': features,
             'position_idx': position_idx,
         }
     
 
-    def get_vision_modeling_loss(self, last_hidden_states, segment_features, position_idx):
+    def get_vision_modeling_loss(self, last_hidden_states, features, position_idx):
         # vm_loss = 0
         vm_loss = torch.tensor(0.0, device=self.device)
         if self.config.insert_queries:
             for i in range(len(last_hidden_states)):
                 segment_prediction = self.feature_prediction_head(last_hidden_states[i][position_idx[i]])
-                vm_loss += nn.functional.mse_loss(segment_prediction, segment_features[i])
+                vm_loss += nn.functional.mse_loss(segment_prediction, features[i])
         return vm_loss
     
 
@@ -224,7 +216,7 @@ class SubobjectVLM(PreTrainedModel):
         if labels: # for training
             outputs = OrderedDict(outputs)
             loss_vm = self.get_vision_modeling_loss(
-                outputs['hidden_states'][-1], labels['segment_features'], labels['position_idx']
+                outputs['hidden_states'][-1], labels['features'], labels['position_idx']
                 )
             outputs['loss_terms'] = {'loss_lm': outputs['loss'].detach().clone(), 'loss_vm': loss_vm}
             outputs['loss'] = outputs['loss'] * self.config.lm_loss_weight + loss_vm * self.config.vm_loss_weight

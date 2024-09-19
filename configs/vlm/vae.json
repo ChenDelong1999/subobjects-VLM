@@ -1,5 +1,5 @@
 {
-    "image_resolution": 1024,
+    "image_resolution": 768,
     "token_resolution": 16,
     "vision_encoder_type": "diffusers_vae",
     "vision_encoder_name": "chendelong/stable-diffusion-3-medium-vae"

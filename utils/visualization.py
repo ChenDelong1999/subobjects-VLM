@@ -3,6 +3,7 @@ import cv2
 from PIL import Image
 import numpy as np
 import tqdm
+import matplotlib.pyplot as plt
 
 
 def visualize_masks(image, masks, mask_erotion=0, show_progress_bar=False):
@@ -18,3 +19,15 @@ def visualize_masks(image, masks, mask_erotion=0, show_progress_bar=False):
         color = np.mean(image[mask_indices], axis=0)
         canvas[mask_indices] = color
     return canvas
+
+
+def visualize_sample(sample, inputs):
+    print(sample['text'])
+
+    plt.figure(figsize=(8, 4))
+    plt.subplot(1, 2, 1)
+    plt.imshow(inputs['image'][0])
+
+    plt.subplot(1, 2, 2)
+    plt.imshow(visualize_masks(inputs['image'][0], inputs['masks'][0]))
+    plt.show()
