@@ -59,13 +59,13 @@ class SubobjectVLM(PreTrainedModel):
         nn.init.zeros_(self.feature_embed.weight)
         nn.init.zeros_(self.mask_embed.weight)
 
-        self.feature_prediction_head = nn.Sequential(
-            nn.Linear(self.config.hidden_size, self.config.hidden_size*2),
-            nn.ReLU(),
-            nn.Linear(self.config.hidden_size*2, self.config.hidden_size*2),
-            nn.ReLU(),
-            nn.Linear(self.config.hidden_size*2, feature_channels * (vlm_config.token_resolution ** 2))
-        )
+        # self.feature_prediction_head = nn.Sequential(
+        #     nn.Linear(self.config.hidden_size, self.config.hidden_size*2),
+        #     nn.ReLU(),
+        #     nn.Linear(self.config.hidden_size*2, self.config.hidden_size*2),
+        #     nn.ReLU(),
+        #     nn.Linear(self.config.hidden_size*2, feature_channels * (vlm_config.token_resolution ** 2))
+        # )
         
         if not hasattr(self.config, 'vlm_config'):
             self.config.vlm_config = vlm_config
