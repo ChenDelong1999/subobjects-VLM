@@ -145,9 +145,9 @@ class SubobjectVLM(PreTrainedModel):
     def prepare_visual_embeds(self, image, masks):
 
         boxes, masks, features = self.visual_token_embedding(image, masks)
-        # roi_boxes: N, M, 4
-        # roi_masks: N, M, token_resolution, token_resolution
-        # embeddings: N, M, C * token_resolution * token_resolution
+        # boxes: (N, M, 4)
+        # masks: (N, M, token_resolution, token_resolution)
+        # features: (N, M, C * token_resolution * token_resolution)
 
         boxes = boxes.to(self.dtype).to(self.device).detach()
         masks = masks.to(self.dtype).to(self.device).detach()
@@ -158,8 +158,8 @@ class SubobjectVLM(PreTrainedModel):
         box_embeds = self.box_embed(boxes) * not_padding
         mask_embeds = self.mask_embed(masks.view(masks.shape[0], masks.shape[1], -1)) * not_padding
         feature_embeds = self.feature_embed(features) * not_padding
-        
-        return box_embeds, mask_embeds, feature_embeds, features, not_padding.sum(dim=-1).cpu().numpy()
+
+        return box_embeds, mask_embeds, feature_embeds, features, not_padding.squeeze(-1).sum(dim=-1).cpu().numpy()
 
 
     def prepare_inputs_embeds(self, input_ids, image, masks):
@@ -167,14 +167,18 @@ class SubobjectVLM(PreTrainedModel):
         assert len(input_ids) == len(image) == len(masks); f"Inputs batch size mismatch: {len(input_ids)}, {len(image)}, {len(masks)}"
 
         box_embeds, mask_embeds, feature_embeds, features, n_visual_tokens = self.prepare_visual_embeds(image, masks)
-        input_ids, position_idx, content_idx = self.insert_visual_tokens(input_ids,  n_visual_tokens)
+        input_ids, position_idx, content_idx = self.insert_visual_tokens(input_ids, n_visual_tokens)
         inputs_embeds = self.get_input_embeddings()(input_ids)
 
         # add visual embeddings to textual embeddings
         for i in range(len(input_ids)):
-            inputs_embeds[i, content_idx[i]] += (box_embeds[i] + mask_embeds[i] + feature_embeds[i]).to(self.dtype) 
+            inputs_embeds[i, content_idx[i]] += (
+                box_embeds[i, :n_visual_tokens[i]] +
+                mask_embeds[i, :n_visual_tokens[i]] + 
+                feature_embeds[i, :n_visual_tokens[i]]
+                ).to(self.dtype) 
             if self.config.insert_queries:
-                inputs_embeds[i, position_idx[i]] += box_embeds[i].to(self.dtype) 
+                inputs_embeds[i, position_idx[i]] += box_embeds[i, :n_visual_tokens[i]].to(self.dtype) 
         inputs_embeds = inputs_embeds.contiguous()
 
         # labels for textual next token prediction 
