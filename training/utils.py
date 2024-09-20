@@ -50,18 +50,17 @@ def get_params_count_summary(model, max_name_len: int = 96):
   
   return param_counts_text
 
-
-
     
 def get_run_description(args):
 
     description = datetime.datetime.now().strftime("%m%d-%H%M")
     description += '-' +  args.dataset
+    description += '-' + args.visual_tokenizer_config.split('/')[-1].split('.')[0] + f'({args.max_visual_tokens})'
     description += '-' + args.vlm_config.split('/')[-1].split('.')[0]
-    if args.insert_queries:
-        description += '-vm' +  str(args.vm_loss_weight)
-    else:
-        description += '-no-query'
+    # if args.insert_queries:
+    #     description += '-vm' +  str(args.vm_loss_weight)
+    # else:
+    #     description += '-no-query'
     description += '-' +  args.llm.split('/')[-1].split('.')[0]
     if args.lora_config is not None:
         description += '-' +  args.lora_config.split('/')[-1].split('.')[0]
