@@ -64,7 +64,7 @@ class VisualTokenEmbedding(torch.nn.Module):
         return roi_boxes, roi_masks, embeddings
     
 
-    def dialate_masks(self, batch_masks, ratio=200):
+    def dialate_masks(self, batch_masks, ratio=50):
         N, M, H_mask, W_mask = batch_masks.shape
 
         kernel_size = batch_masks.shape[-1] // ratio
