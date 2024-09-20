@@ -13,7 +13,7 @@
 
     learning_rate: !!float 1e-3
     lr_scheduler_type: 'constant_with_warmup'
-    warmup_steps: 2000
+    warmup_steps: 100
     weight_decay: 0.05
 
   # speed-up training
