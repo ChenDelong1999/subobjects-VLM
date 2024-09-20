@@ -1,0 +1,5 @@
+{
+    "type": "patch",
+    "patch_per_side": 16,
+    "order": "random"
+}
