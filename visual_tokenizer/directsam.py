@@ -6,20 +6,18 @@ import torch.nn as nn
 
 from transformers import AutoModelForSemanticSegmentation, AutoImageProcessor
 
-
-
-
 class DirectSAMTokenizer:
 
     def __init__(
         self,
-        ckpt,
+        checkpoint,
         threshold,
         image_resolution,
         max_tokens,
-        device
+        device="cuda",
+        **kwargs
     ):
-        self.ckpt = ckpt
+        self.ckpt = checkpoint
         self.threshold = threshold
         self.image_resolution = image_resolution
         self.max_tokens = max_tokens
@@ -31,7 +29,7 @@ class DirectSAMTokenizer:
         self.image_processor.size['height'] = image_resolution
         self.image_processor.size['width'] = image_resolution 
 
-        self.model = AutoModelForSemanticSegmentation.from_pretrained(ckpt)
+        self.model = AutoModelForSemanticSegmentation.from_pretrained(checkpoint)
         self.model = self.model.to(self.device).half().eval()
 
 

@@ -12,11 +12,11 @@ mp.set_start_method('spawn', force=True)
 
 from transformers import TrainingArguments
 
-from visual_tokenizer.directsam import DirectSAMTokenizer
 
 from model.utils import create_vlm
 from model.utils import VisualTextualTokenization
 from data import get_dataset
+from visual_tokenizer import get_visual_tokenizer
 
 from training.trainer import (
     CustomTrainer, 
@@ -46,6 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('--train_samples', type=int, default=None)
 
     parser.add_argument('--trainer_config', type=str, required=True)
+    parser.add_argument('--visual_tokenizer_config', type=str, required=True)
     parser.add_argument('--llm', type=str, required=True)
     parser.add_argument('--lora_config', type=str, default=None)
     parser.add_argument('--vlm_config', type=str, required=True)
@@ -94,13 +95,11 @@ if __name__ == '__main__':
     model.config.keys_to_ignore_at_inference = ['logits', 'past_key_values', 'hidden_states'] # avoid CUDA OOM during evaluation
 
     # create visual and VL tokenizer (data_collector)
-    visual_tokenizer = DirectSAMTokenizer(
-        ckpt="chendelong/DirectSAM-tiny-distilled-30ep-plus-50ep-1024px-0910",
-        threshold=0.1,
-        image_resolution=model.config.vlm_config.image_resolution,
-        max_tokens=args.max_visual_tokens,
-        device="cuda"
-    )
+    visual_tokenizer = get_visual_tokenizer(
+        **json.load(open(args.visual_tokenizer_config)), 
+        image_resolution=model.config.vlm_config.image_resolution, 
+        max_tokens=args.max_visual_tokens
+        )
     vl_tokenizer = VisualTextualTokenization(textual_tokenizer, visual_tokenizer)
 
     args.training_args['output_dir'] = os.path.join(args.output_dir, get_run_description(args))
