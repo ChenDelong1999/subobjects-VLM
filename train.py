@@ -71,8 +71,9 @@ if __name__ == '__main__':
     # load dataset, tokenizer, model, and image segmenter
     train_dataset = get_dataset(
         args.dataset, args.dataset_root, split='train', max_samples=args.train_samples)
-    eval_dataset = get_dataset(
-        args.dataset, args.dataset_root, split='val', max_samples=args.eval_samples)
+    # eval_dataset = get_dataset(
+    #     args.dataset, args.dataset_root, split='val', max_samples=args.eval_samples)
+    eval_dataset = train_dataset
 
     # calculate max length
     if args.insert_queries:
