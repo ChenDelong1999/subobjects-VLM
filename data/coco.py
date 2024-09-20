@@ -24,5 +24,5 @@ class CocoCaptionDataset(torch.utils.data.Dataset):
         image, captions = self.dataset[index]
         text = f'{self.user_tag} Provide a one-sentence caption for the provided image {self.image_tag}{self.end_tag}{self.assistant_tag}{random.choice(captions)}{self.end_tag}'
 
-        return {"text": text, "image": image}
+        return {"text": text, "image": image.convert('RGB')}
     

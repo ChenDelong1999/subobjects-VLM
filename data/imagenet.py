@@ -31,4 +31,4 @@ class ImageNet(torch.utils.data.Dataset):
         # text = f'{self.user_tag} What is this: {self.image_tag}{self.end_tag}{self.assistant_tag} It\'s a {self.class_names[class_idx]}.{self.end_tag}'
         text = f'{self.user_tag}{self.image_tag}{self.end_tag}{self.assistant_tag}{self.class_names[class_idx]}{self.end_tag}'
 
-        return {"text": text, "image": image}
+        return {"text": text, "image": image.convert('RGB')}

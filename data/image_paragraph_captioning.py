@@ -42,6 +42,6 @@ class ImageParagraphCaptioning(torch.utils.data.Dataset):
     
     def __getitem__(self, idx):
         sample =  self.samples[idx].copy()
-        sample['image'] = Image.open(sample['image_path'])
+        sample['image'] = Image.open(sample['image_path']).convert('RGB')
         sample.pop('image_path')
         return sample

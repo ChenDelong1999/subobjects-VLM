@@ -15,9 +15,12 @@ class RGBPixel():
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     def __call__(self, images):
-        pixel_values = [self.preprocess(image) for image in images]
+        pixel_values = [self.preprocess(image.convert('RGB')) for image in images]
         pixel_values = torch.stack(pixel_values).to(self.device).to(self.dtype)
         return pixel_values
     
     def eval(self):
         return self
+    
+    def parameters(self):
+        return []
