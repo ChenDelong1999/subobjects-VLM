@@ -16,7 +16,7 @@ class PatchTokenizer:
         self.masks = self._prepare_masks()
         
     def _prepare_masks(self):
-        masks = np.zeros((self.num_patches, self.image_resolution, self.image_resolution), dtype=bool)
+        masks = np.zeros((self.max_tokens, self.image_resolution, self.image_resolution), dtype=bool)
         
         for i in range(self.patch_per_side):
             for j in range(self.patch_per_side):
