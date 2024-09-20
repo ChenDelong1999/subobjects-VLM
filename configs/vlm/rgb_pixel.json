@@ -1,0 +1,7 @@
+{
+    "image_resolution": 1024,
+    "token_resolution": 64,
+    "vision_encoder_type": "rgb_pixel",
+    "vision_encoder_name": "rgb_pixel"
+  }
+  

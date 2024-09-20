@@ -1,0 +1,7 @@
+{
+    "image_resolution": 1024,
+    "token_resolution": 16,
+    "vision_encoder_type": "hf_autobacbone",
+    "vision_encoder_name": "facebook/convnextv2-tiny-22k-384/stage3"
+  }
+  
