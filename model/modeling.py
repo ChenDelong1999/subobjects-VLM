@@ -27,32 +27,32 @@ class SubobjectVLM(PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
 
-        self.vlm_initialized = False
+        self.visual_initialized = False
         self.lora_initialized = False
 
-        if hasattr(config, 'vlm_config'):
-            config.vlm_config = PretrainedConfig.from_dict(config.vlm_config)
-            self.init_vlm(config.vlm_config)
+        if hasattr(config, 'visual_embed_config'):
+            config.visual_embed_config = PretrainedConfig.from_dict(config.visual_embed_config)
+            self.init_visual(config.visual_embed_config)
 
         if hasattr(config, 'lora_config'):
             self.init_lora(config.lora_config)
 
-    def init_vlm(self, vlm_config):
+    def init_visual(self, visual_embed_config):
 
-        if self.vlm_initialized:
+        if self.visual_initialized:
             print('VLM already initialized')
             return
 
-        self.visual_token_embedding = VisualTokenEmbedding(vlm_config)
+        self.visual_token_embedding = VisualTokenEmbedding(visual_embed_config)
         feature_channels = self.visual_token_embedding.vision_encoder.feature_channels
 
         self.feature_embed = nn.Linear(
-            feature_channels * (vlm_config.token_resolution ** 2), 
+            feature_channels * (visual_embed_config.token_resolution ** 2), 
             self.config.hidden_size, bias=False)
         self.box_embed = nn.Linear(
             4, self.config.hidden_size, bias=False)
         self.mask_embed = nn.Linear(
-            vlm_config.token_resolution * vlm_config.token_resolution, 
+            visual_embed_config.token_resolution * visual_embed_config.token_resolution, 
             self.config.hidden_size, bias=False)
 
         nn.init.zeros_(self.box_embed.weight)
@@ -64,13 +64,13 @@ class SubobjectVLM(PreTrainedModel):
         #     nn.ReLU(),
         #     nn.Linear(self.config.hidden_size*2, self.config.hidden_size*2),
         #     nn.ReLU(),
-        #     nn.Linear(self.config.hidden_size*2, feature_channels * (vlm_config.token_resolution ** 2))
+        #     nn.Linear(self.config.hidden_size*2, feature_channels * (visual_embed_config.token_resolution ** 2))
         # )
         
-        if not hasattr(self.config, 'vlm_config'):
-            self.config.vlm_config = vlm_config
+        if not hasattr(self.config, 'visual_embed_config'):
+            self.config.visual_embed_config = visual_embed_config
 
-        self.vlm_initialized = True
+        self.visual_initialized = True
 
     
     def init_lora(self, lora_config):    
@@ -126,7 +126,7 @@ class SubobjectVLM(PreTrainedModel):
             else:
                 # no position queires, only content tokens
                 visual_tokens = torch.full((n_visual_tokens,), self.token_ids['<|visual_content|>'], dtype=torch.long)
-                content_idx = np.arange(image_token_idx+1, image_token_idx+1+n_visual_tokens)
+                content_idx = np.arange(image_token_idx + 1, image_token_idx + 1 + n_visual_tokens)
 
                 input_ids = torch.cat((
                     input_ids[:image_token_idx],
@@ -145,8 +145,8 @@ class SubobjectVLM(PreTrainedModel):
     def prepare_visual_embeds(self, image, masks):
 
         boxes, masks, features = self.visual_token_embedding(image, masks)
-        # boxes: (N, M, 4)
-        # masks: (N, M, token_resolution, token_resolution)
+        # boxes:    (N, M, 4)
+        # masks:    (N, M, token_resolution, token_resolution)
         # features: (N, M, C * token_resolution * token_resolution)
 
         boxes = boxes.to(self.dtype).to(self.device).detach()

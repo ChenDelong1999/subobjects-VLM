@@ -49,13 +49,14 @@ if __name__ == '__main__':
     parser.add_argument('--visual_tokenizer_config', type=str, required=True)
     parser.add_argument('--llm', type=str, required=True)
     parser.add_argument('--lora_config', type=str, default=None)
-    parser.add_argument('--vlm_config', type=str, required=True)
+    parser.add_argument('--visual_embed_config', type=str, required=True)
 
     parser.add_argument('--epoch', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1)
     parser.add_argument('--dataloader_num_workers', type=int, default=8)
 
+    parser.add_argument('--image_resolution', type=int, default=768)
     parser.add_argument('--max_visual_tokens', type=int, default=128)
 
     parser.add_argument('--vm_loss_weight', type=float, default=1.0)
@@ -84,7 +85,8 @@ if __name__ == '__main__':
     # create model and textualn tokenizer
     model, textual_tokenizer = create_vlm(
         llm = args.llm, 
-        vlm_config = args.vlm_config,
+        visual_embed_config = args.visual_embed_config,
+        image_resolution=args.image_resolution,
         lora_config = args.lora_config, 
         model_max_length=model_max_length
         )
@@ -98,7 +100,7 @@ if __name__ == '__main__':
     # create visual and VL tokenizer (data_collector)
     visual_tokenizer = get_visual_tokenizer(
         **json.load(open(args.visual_tokenizer_config)), 
-        image_resolution=model.config.vlm_config.image_resolution, 
+        image_resolution=args.image_resolution, 
         max_tokens=args.max_visual_tokens
         )
     vl_tokenizer = VisualTextualTokenization(textual_tokenizer, visual_tokenizer)

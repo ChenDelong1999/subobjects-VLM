@@ -56,7 +56,7 @@ def get_run_description(args):
     description = datetime.datetime.now().strftime("%m%d-%H%M")
     description += '-' +  args.dataset
     description += '-' + args.visual_tokenizer_config.split('/')[-1].split('.')[0] + f'({args.max_visual_tokens})'
-    description += '-' + args.vlm_config.split('/')[-1].split('.')[0]
+    description += '-' + args.visual_embed_config.split('/')[-1].split('.')[0]
     # if args.insert_queries:
     #     description += '-vm' +  str(args.vm_loss_weight)
     # else:
