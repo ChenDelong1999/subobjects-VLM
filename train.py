@@ -101,7 +101,8 @@ if __name__ == '__main__':
     visual_tokenizer = get_visual_tokenizer(
         **json.load(open(args.visual_tokenizer_config)), 
         image_resolution=args.image_resolution, 
-        max_tokens=args.max_visual_tokens
+        max_tokens=args.max_visual_tokens,
+        device=f'cuda:{args.rank}'
         )
     vl_tokenizer = VisualTextualTokenization(textual_tokenizer, visual_tokenizer)
 
