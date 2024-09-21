@@ -185,7 +185,7 @@ class SubobjectVLM(PreTrainedModel):
         lm_labels = input_ids.clone()
         lm_labels[lm_labels == self.token_ids['pad']] = -100
         for i in range(len(input_ids)): 
-            # only predict the assistant's response
+            # only do next token prediction after the first <|assistant|> token
             lm_labels[i, : (input_ids[i] == self.token_ids['<|assistant|>']).nonzero()[0].item()+1] = -100
 
         return inputs_embeds, {
