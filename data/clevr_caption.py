@@ -15,7 +15,7 @@ class CLEVRCaption(torch.utils.data.Dataset):
         self.image_tag = image_tag
         self.end_tag = end_tag
         self.max_samples = max_samples
-        self.max_text_tokens = 250
+        self.max_text_tokens = 100
         
         annotation_file = os.path.join(root, 'captions', f'{split}.json')
         self.samples = json.load(open(annotation_file, 'r'))
