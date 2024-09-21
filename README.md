@@ -21,13 +21,13 @@ pip install -r requirements.txt
 
 cd /home/dchenbs/workspace/subobjects-VLM
 conda activate subobjects_vlm
-CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29501 train.py \
-    --epoch 3 --batch_size 8 --gradient_accumulation_steps 4 \
+CUDA_VISIBLE_DEVICES=1 torchrun --nproc_per_node 1 --master_port 29501 train.py \
+    --epoch 1 --batch_size 8 --gradient_accumulation_steps 4 \
     --llm HuggingFaceTB/SmolLM-360M-Instruct \
     --dataset clevr_caption --dataset_root /home/dchenbs/workspace/datasets/CLEVR_v1.0 \
-    --visual_tokenizer_config configs/visual_tokenizer/directsam_tiny.json \
-    --max_visual_tokens 36 \
-    --vlm_config      configs/vlm/convnext_in22k_stage2.json \
+    --visual_tokenizer_config configs/visual_tokenizer/patch_6_per_side_random.json \
+    --image_resolution 512 --max_visual_tokens 36 \
+    --visual_embed_config      configs/visual_embedding/convnext_in22k_stage2.json \
     --trainer_config  configs/training/default.yaml \
     --lm_loss_weight 1 \
     --dataloader_num_workers 8
@@ -46,7 +46,7 @@ CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29500 train.py 
     --dataset imagenet --dataset_root ../data/OpenDataLab___ImageNet-1K/raw/ImageNet-1K \
     --visual_tokenizer_config configs/visual_tokenizer/directsam_tiny.json \
     --max_visual_tokens 256 \
-    --vlm_config      configs/vlm/convnext_in22k_stage2.json \
+    --visual_embed_config      configs/visual_embedding/convnext_in22k_stage2.json \
     --trainer_config  configs/training/default.yaml \
     --lm_loss_weight 1 \
     --dataloader_num_workers 8
@@ -63,9 +63,9 @@ CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29500 train.py 
     --visual_tokenizer_config configs/visual_tokenizer/patch_16_per_side_random.json \
 
 # Encoders
-    --vlm_config      configs/vlm/convnext_in22k_stage2.json \
-    --vlm_config      configs/vlm/vae.json \
-    --vlm_config      configs/vlm/rgb_pixel.json \
+    --visual_embed_config      configs/visual_embedding/convnext_in22k_stage2.json \
+    --visual_embed_config      configs/visual_embedding/vae.json \
+    --visual_embed_config      configs/visual_embedding/rgb_pixel.json \
 
 # LLMs
     --llm HuggingFaceTB/SmolLM-135M \
