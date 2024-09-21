@@ -1,6 +1,3 @@
-# Tokenizer (in case LLM is randomly initialized from config)
-  tokenizer_path: 'microsoft/Phi-3-mini-128k-instruct'
-
 # Training
   output_dir: 'runs'
   eval_samples: 10000
