@@ -63,6 +63,8 @@ if __name__ == '__main__':
     parser.add_argument('--lm_loss_weight', type=float, default=1.0)
     parser.add_argument('--insert_queries', action='store_true')
 
+    parser.add_argument('--run_comment', type=str, default='')
+
     args = parser.parse_args()
     args = load_args_from_yaml(args.trainer_config, args)
 
