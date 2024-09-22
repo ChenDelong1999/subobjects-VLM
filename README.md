@@ -49,7 +49,7 @@ CUDA_VISIBLE_DEVICES=5 torchrun --nproc_per_node 1 --master_port 29505 train.py 
     --image_resolution 1024 \
     --max_visual_tokens 64 --visual_tokenizer_config configs/visual_tokenizer/patch_8_per_side_raster.json \
     --trainer_config  configs/training/default.yaml \
-    --dataloader_num_workers 8 
+    --dataloader_num_workers 10
     # --run_comment 'without_token_masking'
 
 ```
