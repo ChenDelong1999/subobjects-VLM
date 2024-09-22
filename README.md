@@ -21,13 +21,13 @@ pip install -r requirements.txt
 # ShareGPT4V
 cd /home/dchenbs/workspace/subobjects-VLM
 conda activate subobjects_vlm
-CUDA_VISIBLE_DEVICES=2,3 torchrun --nproc_per_node 2 --master_port 29510 train.py \
-    --epoch 1 --batch_size 4 --gradient_accumulation_steps 8 \
+CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29500 train.py \
+    --epoch 1 --batch_size 8 --gradient_accumulation_steps 4 \
     --llm HuggingFaceTB/SmolLM-1.7B-Instruct \
-    --dataset sharegpt4v --dataset_root /home/dchenbs/workspace/datasets/sharegpt4v/ShareGPT4V/sharegpt4v_instruct_gpt4-vision_cap100k.json \
-    --image_resolution 1024 --max_visual_tokens 256 \
+    --dataset clevr_caption --dataset_root /home/dchenbs/workspace/datasets/CLEVR_v1.0 \
+    --image_resolution 1024 --max_visual_tokens 64 \
     --visual_tokenizer_config configs/visual_tokenizer/directsam_tiny.json \
-    --visual_embed_config      configs/visual_embedding/convnext_in22k_stage2.json \
+    --visual_embed_config      configs/visual_embedding/dinov2_small.json \
     --trainer_config  configs/training/default.yaml \
     --dataloader_num_workers 8
 
@@ -56,12 +56,14 @@ CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29500 train.py 
  
 # Tokenizers
     --visual_tokenizer_config configs/visual_tokenizer/directsam_tiny.json \
+    --visual_tokenizer_config configs/visual_tokenizer/patch_8_per_side_raster.json \
     --visual_tokenizer_config configs/visual_tokenizer/patch_8_per_side_random.json \
     --visual_tokenizer_config configs/visual_tokenizer/patch_6_per_side_random.json \
     --visual_tokenizer_config configs/visual_tokenizer/patch_16_per_side_random.json \
     --visual_tokenizer_config configs/visual_tokenizer/patch_16_per_side_raster.json \
 
 # Encoders
+    --visual_embed_config      configs/visual_embedding/dinov2_small.json \
     --visual_embed_config      configs/visual_embedding/convnext_in22k_stage2.json \
     --visual_embed_config      configs/visual_embedding/vae.json \
     --visual_embed_config      configs/visual_embedding/rgb_pixel.json \
