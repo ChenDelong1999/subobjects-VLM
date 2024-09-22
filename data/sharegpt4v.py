@@ -27,7 +27,7 @@ class ShareGPT4V(torch.utils.data.Dataset):
 
     def __init__(self, root, split='train', max_samples=None):
         
-        self.max_text_tokens = 350
+        self.max_text_tokens = 300
         self.max_samples = max_samples
         samples = json.load(open(root, 'r'))
 
