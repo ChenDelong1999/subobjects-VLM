@@ -61,7 +61,7 @@ def get_run_description(args):
     #     description += '-vm' +  str(args.vm_loss_weight)
     # else:
     #     description += '-no-query'
-    description += '-' +  args.llm.split('/')[-1].split('.')[0]
+    description += '-' +  args.llm.split('/')[-1].replace('.', '_')
     if args.lora_config is not None:
         description += '-' +  args.lora_config.split('/')[-1].split('.')[0]
     
