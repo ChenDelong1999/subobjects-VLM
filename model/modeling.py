@@ -46,25 +46,36 @@ class SubobjectVLM(PreTrainedModel):
         self.visual_token_embedding = VisualTokenEmbedding(visual_embed_config)
         feature_channels = self.visual_token_embedding.vision_encoder.feature_channels
 
-        self.feature_embed = nn.Linear(
-            feature_channels * (visual_embed_config.token_resolution ** 2), 
-            self.config.hidden_size, bias=False)
-        self.box_embed = nn.Linear(
-            4, self.config.hidden_size, bias=False)
-        self.mask_embed = nn.Linear(
-            visual_embed_config.token_resolution * visual_embed_config.token_resolution, 
-            self.config.hidden_size, bias=False)
+        self.feature_embed = nn.Sequential(
+            nn.Linear(feature_channels * (visual_embed_config.token_roi_resolution ** 2),  self.config.hidden_size),
+            nn.ReLU(),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size),
+            nn.ReLU(),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size),
+        )
+        
+        self.box_embed = nn.Sequential(
+            nn.Linear(4, self.config.hidden_size),
+            nn.ReLU(),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size),
+            nn.ReLU(),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size),
+        )
 
-        nn.init.zeros_(self.box_embed.weight)
-        nn.init.zeros_(self.feature_embed.weight)
-        nn.init.zeros_(self.mask_embed.weight)
+        self.mask_embed = nn.Sequential(
+            nn.Linear(visual_embed_config.token_mask_resolution ** 2, self.config.hidden_size),
+            nn.ReLU(),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size),
+            nn.ReLU(),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size),
+        )
 
         # self.feature_prediction_head = nn.Sequential(
         #     nn.Linear(self.config.hidden_size, self.config.hidden_size*2),
         #     nn.ReLU(),
         #     nn.Linear(self.config.hidden_size*2, self.config.hidden_size*2),
         #     nn.ReLU(),
-        #     nn.Linear(self.config.hidden_size*2, feature_channels * (visual_embed_config.token_resolution ** 2))
+        #     nn.Linear(self.config.hidden_size*2, feature_channels * (visual_embed_config.token_roi_resolution ** 2))
         # )
         
         if not hasattr(self.config, 'visual_embed_config'):
@@ -141,13 +152,22 @@ class SubobjectVLM(PreTrainedModel):
         batch_processed_input_ids = torch.stack(batch_processed_input_ids, dim=0).to(self.device)
         return batch_processed_input_ids, batch_position_idx, batch_content_idx
     
+    def boxes_xyxy_to_xywh(self, boxes):
+        # boxes: (N, M, 4) - x1, y1, x2, y2
+        # convert to center x, center y, width, height
+        xywh = boxes.clone()
+        xywh[:, :, 2] = boxes[:, :, 2] - boxes[:, :, 0] # width
+        xywh[:, :, 3] = boxes[:, :, 3] - boxes[:, :, 1] # height
+        xywh[:, :, 0] = boxes[:, :, 0] + 0.5 * xywh[:, :, 2] # center x
+        xywh[:, :, 1] = boxes[:, :, 1] + 0.5 * xywh[:, :, 3] # center y
+        return xywh
 
     def prepare_visual_embeds(self, image, masks):
 
         boxes, masks, features = self.visual_token_embedding(image, masks)
         # boxes:    (N, M, 4)
-        # masks:    (N, M, token_resolution, token_resolution)
-        # features: (N, M, C * token_resolution * token_resolution)
+        # masks:    (N, M, token_mask_resolution, token_mask_resolution)
+        # features: (N, M, C * token_roi_resolution * token_roi_resolution)
 
         boxes = boxes.to(self.dtype).to(self.device).detach()
         masks = masks.to(self.dtype).to(self.device).detach()
@@ -155,7 +175,7 @@ class SubobjectVLM(PreTrainedModel):
 
         not_padding = (boxes.sum(dim=-1) != 0).unsqueeze(-1)
 
-        box_embeds = self.box_embed(boxes) * not_padding
+        box_embeds = self.box_embed(self.boxes_xyxy_to_xywh(boxes)) * not_padding
         mask_embeds = self.mask_embed(masks.view(masks.shape[0], masks.shape[1], -1)) * not_padding
         feature_embeds = self.feature_embed(features) * not_padding
 
