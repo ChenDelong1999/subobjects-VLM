@@ -21,7 +21,7 @@ dir_mapping = {
     'ocr_vqa/images': '/home/dchenbs/workspace/datasets/sharegpt4v/ocr_vqa/images',
     'textvqa/train_images': '/home/dchenbs/workspace/datasets/sharegpt4v/textvqa/train_images',
 }
-train_val_test_split={'train': 0.8, 'val': 0.1,'test': 0.1}
+train_val_split={'train': 0.9, 'val': 0.1}
 
 class ShareGPT4V(torch.utils.data.Dataset):
 
@@ -33,15 +33,12 @@ class ShareGPT4V(torch.utils.data.Dataset):
 
         if split == 'train':
             start_idx = 0
-            end_idx = int(len(samples) * train_val_test_split['train'])
+            end_idx = int(len(samples) * train_val_split['train'])
         elif split == 'val':
-            start_idx = int(len(samples) * train_val_test_split['train'])
-            end_idx = int(len(samples) * (train_val_test_split['train'] + train_val_test_split['val']))
-        elif split == 'test':
-            start_idx = int(len(samples) * (train_val_test_split['train'] + train_val_test_split['val']))
+            start_idx = int(len(samples) * train_val_split['train'])
             end_idx = len(samples)
         else:
-            raise ValueError(f'split should be one of [train, val, test], but got {split}')
+            raise ValueError(f'split should be one of [train, val], but got {split}')
         
         self.samples = samples[start_idx:end_idx]
         print(f'Total samples: {len(samples)}, using {split} split: {len(self.samples)} (from {start_idx} to {end_idx})')
