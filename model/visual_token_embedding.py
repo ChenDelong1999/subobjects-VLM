@@ -73,7 +73,7 @@ class VisualTokenEmbedding(torch.nn.Module):
             radius = kernel_size // 2
             y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
             mask = x**2 + y**2 <= radius**2
-            self.kernel = torch.tensor(mask, dtype=torch.float32, device=batch_masks.device).unsqueeze(0).unsqueeze(0)
+            self.kernel = torch.tensor(mask, dtype=batch_masks.dtype, device=batch_masks.device).unsqueeze(0).unsqueeze(0)
             self.kernel.requires_grad = False
 
         padding = kernel_size // 2
