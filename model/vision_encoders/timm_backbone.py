@@ -16,6 +16,9 @@ class TimmBackbone(nn.Module):
         
         self.model = timm.create_model(model_name, features_only=True, pretrained=True)
         self.model.eval()
+
+        if model_name=='vit_large_patch14_clip_336.openai':
+            image_resolution = 336
         
         self.config = resolve_data_config({}, model=self.model)
         self.config['input_size'] = (3, image_resolution, image_resolution)
