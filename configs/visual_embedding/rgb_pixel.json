@@ -1,5 +1,5 @@
 {
-  "token_roi_resolution": 64,
+  "token_roi_resolution": 128,
   "token_mask_resolution": 64,
   "vision_encoder_type": "rgb_pixel",
   "vision_encoder_name": "rgb_pixel"

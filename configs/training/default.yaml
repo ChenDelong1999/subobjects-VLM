@@ -5,8 +5,8 @@
 # Training Hyperparameters
   training_args:
     logging_steps: 1
-    save_steps: 100
-    save_total_limit: 10
+    save_steps: 200
+    save_total_limit: 50
 
     learning_rate: !!float 1e-5
     lr_scheduler_type: 'constant_with_warmup'
@@ -15,8 +15,8 @@
 
   # speed-up training
     bf16: True
-    torch_compile: False
-    ddp_find_unused_parameters: True
+    torch_compile: True
+    ddp_find_unused_parameters: False
     dataloader_prefetch_factor: 4
 
   # evalutaion
