@@ -53,8 +53,8 @@ def get_params_count_summary(model, max_name_len: int = 96):
     
 def get_run_description(args):
 
-    description = datetime.datetime.now().strftime("%m%d-%H%M")
-    description += '-' +  args.dataset
+    description = args.dataset + '/'
+    description += datetime.datetime.now().strftime("%m%d-%H%M")
     description += '-' + args.visual_tokenizer_config.split('/')[-1].split('.')[0] + f'({args.max_visual_tokens})'
     description += '-' + args.visual_embed_config.split('/')[-1].split('.')[0]
     # if args.insert_queries:
@@ -64,6 +64,9 @@ def get_run_description(args):
     description += '-' +  args.llm.split('/')[-1].replace('.', '_')
     if args.lora_config is not None:
         description += '-' +  args.lora_config.split('/')[-1].split('.')[0]
+    
+    if args.run_comment!='':
+        description += '-' + args.run_comment
     
     return description
 
