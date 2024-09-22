@@ -31,6 +31,8 @@ class DirectSAMTokenizer:
         self.model = AutoModelForSemanticSegmentation.from_pretrained(checkpoint)
         self.model = self.model.to(self.device).half().eval()
 
+        print(f'DirectSAM initialized on {device}')
+
 
     def load_images(self, images):
 
@@ -70,14 +72,14 @@ class DirectSAMTokenizer:
             masks = self.boundary_to_mask(boundary)[:self.max_tokens]
             batch_masks[i, :len(masks)] = masks
 
-        batch_masks = torch.tensor(batch_masks).to(self.device)
-
-        batch_masks = self.dialate_masks(batch_masks)
+        batch_masks = torch.tensor(batch_masks)
 
         # there are some pixels that are not covered by any mask
-        batch_masks[:, -1] = ~torch.any(batch_masks, dim=1)
-        
-        # # sort by area
+        remainings = ~torch.any(batch_masks, dim=1)
+        remainings = self.erode_masks(remainings.unsqueeze(1)).squeeze(1)
+        batch_masks[:, -1] = remainings
+
+        #  sort by area
         sums = torch.sum(batch_masks, dim=(2, 3))
         sorted_indices = torch.argsort(sums, dim=1, descending=True)
         for i in range(batch_masks.shape[0]):
@@ -101,26 +103,26 @@ class DirectSAMTokenizer:
         for i in range(1, num_objects):
             masks[i-1] = labels == i
         return masks
-
-
-    def dialate_masks(self, batch_masks, ratio=50):
+    
+    def erode_masks(self, batch_masks, ratio=50):
         N, M, H_mask, W_mask = batch_masks.shape
 
         kernel_size = batch_masks.shape[-1] // ratio
         kernel_size = int(kernel_size) if int(kernel_size) % 2 == 1 else int(kernel_size) + 1
 
-        if not hasattr(self, 'kernel'):
+        if not hasattr(self, 'erosion_kernel'):
             radius = kernel_size // 2
             y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
             mask = x**2 + y**2 <= radius**2
-            self.kernel = torch.tensor(mask, dtype=torch.float32, device=batch_masks.device).unsqueeze(0).unsqueeze(0)
-            self.kernel.requires_grad = False
+            self.erosion_kernel = torch.tensor(mask, dtype=torch.float32, device=batch_masks.device).unsqueeze(0).unsqueeze(0)
+            self.erosion_kernel.requires_grad = False
 
         padding = kernel_size // 2
         batch_masks_reshaped = batch_masks.view(N*M, 1, H_mask, W_mask).float()
-    
-        dilated_masks = F.conv2d(batch_masks_reshaped, self.kernel, padding=padding, stride=1)
-        dilated_masks = dilated_masks.view(N, M, H_mask, W_mask)
 
-        return (dilated_masks > 0).bool()
+        # Use erosion by applying dilation to the inverse of the mask
+        eroded_masks = 1 - F.conv2d(1 - batch_masks_reshaped, self.erosion_kernel, padding=padding, stride=1)
+        eroded_masks = eroded_masks.view(N, M, H_mask, W_mask)
+
+        return (eroded_masks > 0.5).bool().cpu()
     
