@@ -38,4 +38,4 @@ class PatchTokenizer:
             for i in range(batch_size):
                 np.random.shuffle(batch_masks[i])
         
-        return batch_masks.astype(bool)
+        return torch.tensor(batch_masks.astype(bool))
