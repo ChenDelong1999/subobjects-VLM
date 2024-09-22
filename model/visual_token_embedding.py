@@ -51,8 +51,8 @@ class VisualTokenEmbedding(torch.nn.Module):
 
         Returns:
             roi_boxes  (torch.Tensor): A tensor of shape (N, M, 4) containing the bounding boxes of each mask.
-            roi_masks  (torch.Tensor): A tensor of shape (N, M, token_resolution, token_resolution) containing the cropped masks.
-            embeddings (torch.Tensor): A tensor of shape (N, M, channels * token_resolution * token_resolution) containing the visual token embeddings.
+            roi_masks  (torch.Tensor): A tensor of shape (N, M, token_mask_resolution, token_mask_resolution) containing the cropped masks.
+            embeddings (torch.Tensor): A tensor of shape (N, M, channels * token_roi_resolution * token_roi_resolution) containing the visual token embeddings.
         """
         with torch.no_grad():
             batch_features = self.vision_encoder(batch_images)
@@ -70,10 +70,10 @@ class VisualTokenEmbedding(torch.nn.Module):
         kernel_size = int(kernel_size) if int(kernel_size) % 2 == 1 else int(kernel_size) + 1
 
         if not hasattr(self, 'kernel'):
-            self.kernel = torch.ones(
-                (1, 1, kernel_size, kernel_size), 
-                device=batch_masks.device, dtype=batch_masks.dtype
-                )
+            radius = kernel_size // 2
+            y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
+            mask = x**2 + y**2 <= radius**2
+            self.kernel = torch.tensor(mask, dtype=torch.float32, device=batch_masks.device).unsqueeze(0).unsqueeze(0)
             self.kernel.requires_grad = False
 
         padding = kernel_size // 2
@@ -100,27 +100,35 @@ class VisualTokenEmbedding(torch.nn.Module):
         # Downsample masks to feature map resolution -> (N, M, H, W)
         batch_masks_feat_scale = F.interpolate(
             batch_masks, size=(H_feature, W_feature),
-            mode='nearest',
+            mode='nearest'
         )
+
+        # Dilate masks
+        batch_masks_feat_scale = self.dialate_masks(batch_masks_feat_scale)
 
         # Perform ROIAlign for features
         roi_features = ops.roi_align(
             batch_features.float(), 
             roi_boxes_feat_scale, 
-            output_size=(self.config.token_resolution, self.config.token_resolution),
+            output_size=(self.config.token_roi_resolution, self.config.token_roi_resolution),
             sampling_ratio=1
-            ).view(N, M, C, self.config.token_resolution, self.config.token_resolution)
+            ).view(N, M, C, self.config.token_roi_resolution, self.config.token_roi_resolution)
 
         # Perform ROIAlign for masks
         roi_masks = self.crop_roi_masks(
             batch_masks_feat_scale,
             roi_boxes_feat_scale,
-            self.config.token_resolution
+            self.config.token_mask_resolution
         ).to(roi_features.device, dtype=roi_features.dtype)
-        roi_masks = roi_masks.repeat(1, 1, C, 1, 1)
+
+        roi_masks_in_token_resolution = F.interpolate(
+            roi_masks.squeeze(2),
+            size=(self.config.token_roi_resolution, self.config.token_roi_resolution),
+            mode='nearest'
+        ).unsqueeze(2)
 
         # Apply mask to the features and flatten to embeddings
-        roi_features = roi_features * roi_masks
+        roi_features = roi_features * roi_masks_in_token_resolution.repeat(1, 1, C, 1, 1)
         embeddings = roi_features.view(N, M, -1)
 
         return torch.stack(roi_boxes_image_scale) / H_image, roi_masks[:, :, 0], embeddings.to(dtype)
@@ -161,7 +169,7 @@ class VisualTokenEmbedding(torch.nn.Module):
         return [box.float() for box in roi_boxes]
     
     
-    def crop_roi_masks(self, batch_masks, roi_boxes, token_resolution):
+    def crop_roi_masks(self, batch_masks, roi_boxes, token_roi_resolution):
         N, M, H, W = batch_masks.shape
         device = batch_masks.device
         dtype = batch_masks.dtype
@@ -180,13 +188,11 @@ class VisualTokenEmbedding(torch.nn.Module):
         cropped_masks = ops.roi_align(
             batch_masks_flat.float(),  # Ensure the masks are in float
             boxes,
-            output_size=token_resolution,
+            output_size=token_roi_resolution,
             spatial_scale=1.0,          # Masks are in the same scale
             sampling_ratio=0,
             aligned=True
-        )  # Output shape: (N*M, C, token_resolution, token_resolution)
+        )  # Output shape: (N*M, C, token_roi_resolution, token_roi_resolution)
+        cropped_masks = cropped_masks.reshape(N, M, 1, token_roi_resolution, token_roi_resolution) 
 
-        # Reshape back to (N, M, C, token_resolution, token_resolution)
-        cropped_masks = cropped_masks.reshape(N, M, 1, token_resolution, token_resolution) > 0
-
-        return cropped_masks
+        return cropped_masks > 0
