@@ -97,15 +97,6 @@ class VisualTokenEmbedding(torch.nn.Module):
         roi_boxes_image_scale = self.get_roi_boxes_from_masks(batch_masks)
         roi_boxes_feat_scale = [box / H_image * H_feature for box in roi_boxes_image_scale]
 
-        # Downsample masks to feature map resolution -> (N, M, H, W)
-        batch_masks_feat_scale = F.interpolate(
-            batch_masks, size=(H_feature, W_feature),
-            mode='nearest'
-        )
-
-        # Dilate masks
-        batch_masks_feat_scale = self.dialate_masks(batch_masks_feat_scale)
-
         # Perform ROIAlign for features
         roi_features = ops.roi_align(
             batch_features.float(), 
@@ -113,6 +104,14 @@ class VisualTokenEmbedding(torch.nn.Module):
             output_size=(self.config.token_roi_resolution, self.config.token_roi_resolution),
             sampling_ratio=1
             ).view(N, M, C, self.config.token_roi_resolution, self.config.token_roi_resolution)
+
+        # Downsample masks to feature map resolution -> (N, M, H, W)
+        batch_masks_feat_scale = F.interpolate(
+            batch_masks, size=(H_feature, W_feature),
+            mode='nearest'
+        )
+        # Dilate masks
+        batch_masks_feat_scale = self.dialate_masks(batch_masks_feat_scale)
 
         # Perform ROIAlign for masks
         roi_masks = self.crop_roi_masks(
