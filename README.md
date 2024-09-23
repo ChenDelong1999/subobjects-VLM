@@ -38,21 +38,20 @@ CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29500 train.py 
 ### ShareGPT4V
 
 ```bash
-# ShareGPT4V
 cd /home/dchenbs/workspace/subobjects-VLM
 conda activate subobjects_vlm
 CUDA_VISIBLE_DEVICES=5 torchrun --nproc_per_node 1 --master_port 29505 train.py \
-    --epoch 10 --batch_size 8 --gradient_accumulation_steps 8 \
-    --dataset sharegpt4v --dataset_root /home/dchenbs/workspace/datasets/sharegpt4v/ShareGPT4V/sharegpt4v_instruct_gpt4-vision_cap100k.json \
-    --llm HuggingFaceTB/SmolLM-135M-Instruct \
+    --epoch 1 --batch_size 8 --gradient_accumulation_steps 8 \
+    --dataset sharegpt4v --dataset_root /home/dchenbs/workspace/datasets/sharegpt4v/ShareGPT4V/share-captioner_coco_lcs_sam_1246k_1107.json \
+    --llm HuggingFaceTB/SmolLM-360M-Instruct \
     --visual_embed_config configs/visual_embedding/clip_resnet50.json \
     --image_resolution 1024 \
-    --max_visual_tokens 64 --visual_tokenizer_config configs/visual_tokenizer/patch_8_per_side_raster.json \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch_6_per_side_random.json \
     --trainer_config  configs/training/default.yaml \
     --dataloader_num_workers 10
-    # --run_comment 'without_token_masking'
 
 ```
+
 
 ```bash
     --dataset sharegpt4v --dataset_root /home/dchenbs/workspace/datasets/sharegpt4v/ShareGPT4V/sharegpt4v_instruct_gpt4-vision_cap100k.json \
