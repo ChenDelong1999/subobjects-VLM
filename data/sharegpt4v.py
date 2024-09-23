@@ -3,7 +3,7 @@ import torch
 import json
 import tqdm
 from PIL import Image
-
+import random
 
 dir_mapping = {
     'sam/images': '/home/dchenbs/workspace/datasets/sa1b',
@@ -95,23 +95,28 @@ class ShareGPT4V(torch.utils.data.Dataset):
 
 
     def __getitem__(self, index, only_return_img_path=False):
-        sample = self.samples[index]
-        img_path = sample['image']
 
-        if 'sam/images' in img_path:
-            relative_img_path = img_path.split('sam/images/')[-1]
-            img_path = img_path.replace(relative_img_path, self.sam_dir_mapping[relative_img_path])
+        try:
+            sample = self.samples[index]
+            img_path = sample['image']
 
-        for org, new in dir_mapping.items():
-            img_path = img_path.replace(org, new)
+            if 'sam/images' in img_path:
+                relative_img_path = img_path.split('sam/images/')[-1]
+                img_path = img_path.replace(relative_img_path, self.sam_dir_mapping[relative_img_path])
 
-        # img = Image.open(img_path)
-        assert os.path.exists(img_path), f'Image not found: {img_path}'
+            for org, new in dir_mapping.items():
+                img_path = img_path.replace(org, new)
 
-        if only_return_img_path:
-            return img_path
-        else:
-            return self.process_sharegpt4v_sample(img_path, sample)
+            # img = Image.open(img_path)
+            assert os.path.exists(img_path), f'Image not found: {img_path}'
+
+            if only_return_img_path:
+                return img_path
+            else:
+                return self.process_sharegpt4v_sample(img_path, sample)
+        except Exception as e:
+            print(f'Error loading sample {index}: {e}')
+            return self.__getitem__(random.randint(0, len(self.samples)-1))
     
     def __len__(self):
         if self.max_samples is not None:
