@@ -18,6 +18,7 @@ from model.utils import VisualTextualTokenization
 from data import get_dataset
 from visual_tokenizer import get_visual_tokenizer
 
+from transformers import Trainer
 from training.trainer import (
     CustomTrainer, 
     compute_metrics_for_loss_term_logging
@@ -125,14 +126,15 @@ if __name__ == '__main__':
         print(f'{"-"*100}\n-> training sample 0:\n{train_dataset[0]}')
         save_and_print_args(args, training_args)
 
-    trainer = CustomTrainer(
+    trainer = Trainer(
+    # trainer = CustomTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         data_collator=vl_tokenizer,
         tokenizer=textual_tokenizer, 
-        compute_metrics=compute_metrics_for_loss_term_logging,
+        # compute_metrics=compute_metrics_for_loss_term_logging,
     )
 
     # https://discuss.huggingface.co/t/no-log-for-validation-loss-during-training-with-trainer/40094/2
