@@ -1,5 +1,5 @@
 {
-  "token_roi_resolution": 8,
+  "token_roi_resolution": 16,
   "token_mask_resolution": 64,
   "vision_encoder_type": "hf_autobacbone",
   "vision_encoder_name": "facebook/convnextv2-tiny-22k-384/stage3"
