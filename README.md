@@ -20,18 +20,17 @@ pip install -r requirements.txt
 ### CLEVR Caption
 
 ```bash
-# ShareGPT4V
 cd /home/dchenbs/workspace/subobjects-VLM
 conda activate subobjects_vlm
-CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29500 train.py \
-    --epoch 1 --batch_size 8 --gradient_accumulation_steps 4 \
-    --llm HuggingFaceTB/SmolLM-1.7B-Instruct \
+CUDA_VISIBLE_DEVICES=5 torchrun --nproc_per_node 1 --master_port 29512 train.py \
+    --epoch 1 --batch_size 8 --gradient_accumulation_steps 1 \
     --dataset clevr_caption --dataset_root /home/dchenbs/workspace/datasets/CLEVR_v1.0 \
-    --image_resolution 768 --max_visual_tokens 36 \
-    --visual_tokenizer_config configs/visual_tokenizer/directsam_tiny.json \
+    --llm HuggingFaceTB/SmolLM-135M-Instruct \
     --visual_embed_config      configs/visual_embedding/rgb_pixel.json \
+    --image_resolution 768 \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch_6_per_side_raster.json \
     --trainer_config  configs/training/default.yaml \
-    --dataloader_num_workers 8
+    --dataloader_num_workers 10
 
 ```
 
@@ -40,13 +39,13 @@ CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29500 train.py 
 ```bash
 cd /home/dchenbs/workspace/subobjects-VLM
 conda activate subobjects_vlm
-CUDA_VISIBLE_DEVICES=5 torchrun --nproc_per_node 1 --master_port 29505 train.py \
-    --epoch 1 --batch_size 8 --gradient_accumulation_steps 8 \
+CUDA_VISIBLE_DEVICES=2,3 torchrun --nproc_per_node 2 --master_port 29503 train.py \
+    --epoch 1 --batch_size 8 --gradient_accumulation_steps 1 \
     --dataset sharegpt4v --dataset_root /home/dchenbs/workspace/datasets/sharegpt4v/ShareGPT4V/share-captioner_coco_lcs_sam_1246k_1107.json \
-    --llm HuggingFaceTB/SmolLM-360M-Instruct \
-    --visual_embed_config configs/visual_embedding/clip_resnet50.json \
+    --llm HuggingFaceTB/SmolLM-1.7B-Instruct \
+    --visual_embed_config configs/visual_embedding/vae.json \
     --image_resolution 1024 \
-    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch_6_per_side_random.json \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch_6_per_side_raster.json \
     --trainer_config  configs/training/default.yaml \
     --dataloader_num_workers 10
 
