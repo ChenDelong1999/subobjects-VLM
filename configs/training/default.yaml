@@ -8,7 +8,7 @@
     save_steps: 200
     save_total_limit: 50
 
-    learning_rate: !!float 1e-5
+    learning_rate: !!float 1e-4
     lr_scheduler_type: 'constant_with_warmup'
     warmup_steps: 100
     weight_decay: 0.05
