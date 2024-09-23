@@ -64,13 +64,13 @@ CUDA_VISIBLE_DEVICES=2,3 torchrun --nproc_per_node 2 --master_port 29503 train.p
 
 cd /cpfs/shared/research-llm/liujianfeng/08_subobject/subobjects-VLM
 conda activate subobjects_vlm
-CUDA_VISIBLE_DEVICES=4 torchrun --nproc_per_node 1 --master_port 29500 train.py \
+CUDA_VISIBLE_DEVICES=2,7 torchrun --nproc_per_node 2 --master_port 29500 train.py \
     --epoch 10 --batch_size 8 --gradient_accumulation_steps 8 \
     --dataset imagenet --dataset_root ../data/OpenDataLab___ImageNet-1K/raw/ImageNet-1K \
-    --llm HuggingFaceTB/SmolLM-360M-Instruct \
+    --llm HuggingFaceTB/SmolLM-1.7B-Instruct \
     --visual_embed_config      configs/visual_embedding/rgb_pixel.json \
-    --max_visual_tokens 256 --visual_tokenizer_config configs/visual_tokenizer/directsam_tiny.json \
-    --trainer_config  configs/training/default.yaml \
+    --max_visual_tokens 64 --visual_tokenizer_config configs/visual_tokenizer/directsam_tiny.json \
+    --trainer_config  configs/training/cpfs.yaml \
     --dataloader_num_workers 10
 
 ```
