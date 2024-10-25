@@ -10,6 +10,10 @@ def visualize_masks(image, masks, mask_erotion=0, show_progress_bar=False):
     if type(image) == Image.Image:
         image = np.array(image)
     canvas = np.ones_like(image) * 255
+
+    # sort masks by area
+    masks = sorted(masks, key=lambda x: np.sum(x), reverse=True)
+
     masks = tqdm.tqdm(masks) if show_progress_bar else masks
     for mask in masks:
         if mask_erotion>0:
