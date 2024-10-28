@@ -2,9 +2,10 @@
 ## Install
 
 ```bash
-conda create -n subobjects_vlm python=3.9 -y
+conda create -n subobjects python=3.10 -y
+# conda create -n subobjects python=3.9 -y
 
-conda activate subobjects_vlm
+conda activate subobjects
 
 ```
 
@@ -21,7 +22,7 @@ pip install -r requirements.txt
 
 ```bash
 cd /home/dchenbs/workspace/subobjects-VLM
-conda activate subobjects_vlm
+conda activate subobjects
 CUDA_VISIBLE_DEVICES=5 torchrun --nproc_per_node 1 --master_port 29513 train.py \
     --epoch 1 --batch_size 8 --gradient_accumulation_steps 1 \
     --dataset clevr_caption --dataset_root /home/dchenbs/workspace/datasets/CLEVR_v1.0 \
@@ -38,7 +39,7 @@ CUDA_VISIBLE_DEVICES=5 torchrun --nproc_per_node 1 --master_port 29513 train.py 
 
 ```bash
 cd /home/dchenbs/workspace/subobjects-VLM
-conda activate subobjects_vlm
+conda activate subobjects
 CUDA_VISIBLE_DEVICES=5 torchrun --nproc_per_node 1 --master_port 29505 train.py \
     --epoch 10 --batch_size 8 --gradient_accumulation_steps 4 \
     --dataset coco --dataset_root /share/datasets/coco2017 \
@@ -62,17 +63,17 @@ CUDA_VISIBLE_DEVICES=5 torchrun --nproc_per_node 1 --master_port 29505 train.py 
 
 ```bash
 
-cd /cpfs/shared/research-llm/liujianfeng/08_subobject/subobjects-VLM
-conda activate subobjects_vlm
-CUDA_VISIBLE_DEVICES=2,7 torchrun --nproc_per_node 2 --master_port 29500 train.py \
-    --epoch 10 --batch_size 8 --gradient_accumulation_steps 8 \
-    --dataset imagenet --dataset_root ../data/OpenDataLab___ImageNet-1K/raw/ImageNet-1K \
-    --llm HuggingFaceTB/SmolLM-1.7B-Instruct \
+cd /private/home/delong/workspace/subobjects-VLM
+conda activate subobjects
+CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node 2 --master_port 29500 train.py \
+    --epoch 10 --batch_size 1 --gradient_accumulation_steps 8 \
+    --dataset imagenet --dataset_root /datasets01/imagenet_full_size/061417 \
+    --llm HuggingFaceTB/SmolLM-135M-Instruct \
     --visual_embed_config      configs/visual_embedding/rgb_pixel.json \
-    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam_tiny.json \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam_b0.json \
     --trainer_config  configs/training/cpfs.yaml \
-    --dataloader_num_workers 10
-
+    --dataloader_num_workers 4
+    
 ```
 
 

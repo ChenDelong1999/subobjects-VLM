@@ -74,7 +74,7 @@ def create_vlm(
         model = modeling_class(llm_config)
         print(f'Biult randomly initialized LLM from config file: {llm_config}')
     else:
-        model = modeling_class.from_pretrained(llm, attn_implementation="flash_attention_2", torch_dtype=torch.bfloat16, device_map=None, cache_dir='/home/dchenbs/workspace/cache')
+        model = modeling_class.from_pretrained(llm, torch_dtype=torch.bfloat16, device_map=None)
         llm_config = model.config
         print(f'Loded LLM from pretrained: {llm}')
     

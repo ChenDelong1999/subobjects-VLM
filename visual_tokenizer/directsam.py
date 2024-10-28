@@ -3,8 +3,7 @@ from PIL import Image
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from scipy import ndimage
+from skimage.segmentation import watershed
 
 from transformers import AutoModelForSemanticSegmentation, AutoImageProcessor
 
@@ -62,11 +61,11 @@ class DirectSAMTokenizer:
             logits,
             size=(self.image_resolution, self.image_resolution),
             mode="bicubic",
-            # align_corners=False,
+            align_corners=False,
         )
 
         probabilities = torch.sigmoid(upsampled_logits)[:,0].detach().numpy()
-        boundaries = (probabilities < self.threshold)
+        boundaries = (probabilities > self.threshold)
 
         batch_masks = np.zeros(
             (len(images), self.max_tokens, self.image_resolution, self.image_resolution), 
@@ -74,19 +73,10 @@ class DirectSAMTokenizer:
             ) # N, M, H, W
         
         for i, boundary in enumerate(boundaries):
-            masks = self.boundary_to_mask(boundary)
+            masks = self.boundary_to_mask(boundary, probabilities[i])
             batch_masks[i, :len(masks)] = masks
 
         batch_masks = torch.tensor(batch_masks)
-
-        # # there are some pixels that are not covered by any mask
-        # remainings = ~torch.any(batch_masks, dim=1)
-        # remainings = self.erode_masks(remainings.unsqueeze(1)).squeeze(1)
-        # n_effective_masks = torch.sum(torch.any(batch_masks, dim=(2, 3)), dim=1)
-        # for i in range(batch_masks.shape[0]):
-        #     batch_masks[i, n_effective_masks[i]-1] = remainings[i] | batch_masks[i, n_effective_masks[i]-1]
-
-        # batch_masks = self.sort_masks(batch_masks)
         return batch_masks
     
     def sort_masks(self, batch_masks):
@@ -98,16 +88,17 @@ class DirectSAMTokenizer:
         return batch_masks
 
 
-    def boundary_to_mask(self, boundary):
+    def boundary_to_mask(self, boundary, probability):
         """
         Converts a boundary image to a binary mask.
         Input:      A numpy array (H, W) representing the boundary image, True for boundary pixels and False for non-boundary pixels.
         Returns:    A numpy array of binary masks (n_masks, H, W), where each mask corresponds to a connected component in the boundary image.
         """
         num_objects, labels = cv2.connectedComponents(
-            boundary.astype(np.uint8), 
+            (~boundary).astype(np.uint8), 
             connectivity=4, 
             )
+        labels = watershed(probability, markers=labels)
 
         masks = np.zeros((num_objects-1, *boundary.shape), dtype=bool)
         for i in range(1, num_objects):
@@ -122,59 +113,6 @@ class DirectSAMTokenizer:
         if num_objects > self.max_tokens + 1:
             remaining_masks = masks[self.max_tokens-1:]
             remaining_masks = np.any(remaining_masks, axis=0)
-
-            # erode the remaining masks to make it more compact
-            remaining_masks = self.erode_masks_numpy(remaining_masks)
             masks[self.max_tokens-1] = remaining_masks
         return masks[:self.max_tokens]
-    
-
-    def erode_masks_numpy(self, mask, ratio=50):
-        """
-        Erode a 2D binary mask using a circular kernel.
-        
-        Args:
-        mask (numpy.ndarray): A 2D binary numpy array representing the mask.
-        ratio (int): The ratio to determine the kernel size. Default is 50.
-        
-        Returns:
-        numpy.ndarray: The eroded mask as a 2D binary numpy array.
-        """
-
-        if not hasattr(self, 'erosion_kernel'):
-            kernel_size = mask.shape[-1] // ratio
-            kernel_size = kernel_size if kernel_size % 2 == 1 else kernel_size + 1
-
-            # Create a circular kernel
-            radius = kernel_size // 2
-            y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
-            self.kernel = x**2 + y**2 <= radius**2
-
-        # Perform erosion using scipy.ndimage
-        eroded_mask = ndimage.binary_erosion(mask, structure=self.kernel)
-
-        return eroded_mask
-
-    
-    # def erode_masks(self, batch_masks, ratio=50):
-    #     N, M, H_mask, W_mask = batch_masks.shape
-
-    #     kernel_size = batch_masks.shape[-1] // ratio
-    #     kernel_size = int(kernel_size) if int(kernel_size) % 2 == 1 else int(kernel_size) + 1
-
-    #     if not hasattr(self, 'erosion_kernel'):
-    #         radius = kernel_size // 2
-    #         y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
-    #         mask = x**2 + y**2 <= radius**2
-    #         self.erosion_kernel = torch.tensor(mask, dtype=torch.float32, device=batch_masks.device).unsqueeze(0).unsqueeze(0)
-    #         self.erosion_kernel.requires_grad = False
-
-    #     padding = kernel_size // 2
-    #     batch_masks_reshaped = batch_masks.view(N*M, 1, H_mask, W_mask).float()
-
-    #     # Use erosion by applying dilation to the inverse of the mask
-    #     eroded_masks = 1 - F.conv2d(1 - batch_masks_reshaped, self.erosion_kernel, padding=padding, stride=1)
-    #     eroded_masks = eroded_masks.view(N, M, H_mask, W_mask)
-
-    #     return (eroded_masks > 0.5).bool().cpu()
     
