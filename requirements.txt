@@ -18,4 +18,8 @@ gradio
 evaluate
 scikit-image
 diffusers
-flash-attn
+# flash-attn 
+opencv-python
+tqdm
+matplotlib
+scipy
