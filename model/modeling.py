@@ -46,45 +46,17 @@ class SubobjectVLM(PreTrainedModel):
         self.visual_token_embedding = VisualTokenEmbedding(visual_embed_config)
         feature_channels = self.visual_token_embedding.vision_encoder.feature_channels
 
-        # self.feature_embed = nn.Sequential(
-        #     nn.Linear(feature_channels * (visual_embed_config.token_roi_resolution ** 2),  self.config.hidden_size, bias=False),
-        #     nn.GELU(),
-        #     nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
-        #     nn.GELU(),
-        #     nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
-        # )
-
+        self.box_embed = nn.Linear(4, self.config.hidden_size, bias=False)
         self.feature_embed = nn.Sequential(
-            nn.Linear(feature_channels * (visual_embed_config.token_roi_resolution ** 2),  128, bias=False),
+            nn.Linear(feature_channels * (visual_embed_config.token_roi_resolution ** 2),  512, bias=False),
             nn.GELU(),
-            nn.Linear(128, self.config.hidden_size * 4, bias=False),
-            nn.GELU(),
-            nn.Linear(self.config.hidden_size * 4, self.config.hidden_size, bias=False),
+            nn.Linear(512, self.config.hidden_size, bias=False),
         )
-        
-        self.box_embed = nn.Sequential(
-            nn.Linear(4, self.config.hidden_size, bias=False),
-            nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
-            nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
-        )
-
         self.mask_embed = nn.Sequential(
-            nn.Linear(visual_embed_config.token_mask_resolution ** 2, self.config.hidden_size, bias=False),
+            nn.Linear(visual_embed_config.token_mask_resolution ** 2, 512, bias=False),
             nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
-            nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
+            nn.Linear(512, self.config.hidden_size, bias=False)
         )
-
-        # self.feature_prediction_head = nn.Sequential(
-        #     nn.Linear(self.config.hidden_size, self.config.hidden_size*2),
-        #     nn.ReLU(),
-        #     nn.Linear(self.config.hidden_size*2, self.config.hidden_size*2),
-        #     nn.ReLU(),
-        #     nn.Linear(self.config.hidden_size*2, feature_channels * (visual_embed_config.token_roi_resolution ** 2))
-        # )
         
         if not hasattr(self.config, 'visual_embed_config'):
             self.config.visual_embed_config = visual_embed_config

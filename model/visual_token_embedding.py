@@ -111,7 +111,7 @@ class VisualTokenEmbedding(torch.nn.Module):
             mode='nearest'
         )
         # Dilate masks
-        batch_masks_feat_scale = self.dialate_masks(batch_masks_feat_scale)
+        # batch_masks_feat_scale = self.dialate_masks(batch_masks_feat_scale)
 
         # Perform ROIAlign for masks
         roi_masks = self.crop_roi_masks(

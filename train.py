@@ -19,10 +19,6 @@ from data import get_dataset
 from visual_tokenizer import get_visual_tokenizer
 
 from transformers import Trainer
-from training.trainer import (
-    CustomTrainer, 
-    compute_metrics_for_loss_term_logging
-)
 
 from training.utils import (
     load_args_from_yaml,
@@ -75,9 +71,6 @@ if __name__ == '__main__':
     # load dataset, tokenizer, model, and image segmenter
     train_dataset = get_dataset(
         args.dataset, args.dataset_root, split='train', max_samples=args.train_samples)
-    # eval_dataset = get_dataset(
-    #     args.dataset, args.dataset_root, split='val', max_samples=args.eval_samples)
-    eval_dataset = train_dataset
 
     # calculate max length
     if args.insert_queries:
@@ -97,8 +90,9 @@ if __name__ == '__main__':
     model.config.vm_loss_weight = args.vm_loss_weight
     model.config.lm_loss_weight = args.lm_loss_weight
     model.config.insert_queries = args.insert_queries
-
-    model.config.keys_to_ignore_at_inference = ['logits', 'past_key_values', 'hidden_states'] # avoid CUDA OOM during evaluation
+    
+    # avoid CUDA OOM during evaluation
+    # model.config.keys_to_ignore_at_inference = ['logits', 'past_key_values', 'hidden_states'] 
 
     # create visual and VL tokenizer (data_collector)
     visual_tokenizer = get_visual_tokenizer(
@@ -127,14 +121,11 @@ if __name__ == '__main__':
         save_and_print_args(args, training_args)
 
     trainer = Trainer(
-    # trainer = CustomTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
         data_collator=vl_tokenizer,
         tokenizer=textual_tokenizer, 
-        # compute_metrics=compute_metrics_for_loss_term_logging,
     )
 
     # https://discuss.huggingface.co/t/no-log-for-validation-loss-during-training-with-trainer/40094/2
