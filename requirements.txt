@@ -18,8 +18,9 @@ gradio
 evaluate
 scikit-image
 diffusers
-# flash-attn 
+# flash-attn # only for A100/A800
 opencv-python
 tqdm
 matplotlib
 scipy
+segment-anything
