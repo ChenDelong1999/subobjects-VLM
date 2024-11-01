@@ -32,7 +32,10 @@ class PatchTokenizer:
             images = [images]
         
         batch_size = len(images)
-        batch_masks = np.repeat(self.masks[np.newaxis, :, :, :], batch_size, axis=0)
+        if batch_size > 1:
+            batch_masks = np.repeat(self.masks[np.newaxis, :, :, :], batch_size, axis=0)
+        else:
+            batch_masks = self.masks[np.newaxis, :, :, :]
         
         if self.order == 'random':
             for i in range(batch_size):
