@@ -1,0 +1,5 @@
+{
+    "type": "patch",
+    "patch_per_side": 35,
+    "order": "raster"
+}

@@ -1,0 +1,10 @@
+{
+    "type": "sam",
+    "checkpoint": "sam_vit_h_4b8939",
+    "weights_cache_dir": "/private/home/delong/workspace/subobjects-VLM/visual_tokenizer/weights_cache",
+    "AMG_kwargs": {
+        "points_per_side": 64,
+        "crop_n_layers": 1,
+        "crop_n_points_downscale_factor": 2
+    }
+}
