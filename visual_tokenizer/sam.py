@@ -25,15 +25,11 @@ class SAMTokenizer:
         self.sam = sam_model_registry[sam_model_type](checkpoint=sam_checkpoint).to(device=self.device)
         
         # Initialize mask generator with SAM model
+        if AMG_kwargs is None:
+            AMG_kwargs = {}
         self.mask_generator = SamAutomaticMaskGenerator(
             model=self.sam,
             **AMG_kwargs,
-            # points_per_side=32,
-            # pred_iou_thresh=0.88,
-            # stability_score_thresh=0.95,
-            # crop_n_layers=0,
-            # crop_n_points_downscale_factor=1,
-            # min_mask_region_area=0,
         )
 
     def load_images(self, images):
@@ -59,8 +55,11 @@ class SAMTokenizer:
 
         for i, img in enumerate(images):
             anns = self.mask_generator.generate(np.array(img))
-            masks = np.array([ann['segmentation'] for ann in anns])
-            masks = sam_post_processing(masks)
+            if len(anns) > 0:
+                masks = np.array([ann['segmentation'] for ann in anns])
+                masks = sam_post_processing(masks)
+            else:
+                masks = np.zeros((1, self.image_resolution, self.image_resolution), dtype=bool)
 
             batch_masks[i, :len(masks)] = masks[:self.max_tokens]
 
