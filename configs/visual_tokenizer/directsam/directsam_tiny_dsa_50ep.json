@@ -1,5 +1,0 @@
-{
-    "type": "directsam",
-    "checkpoint": "chendelong/DirectSAM-b0-1024px-sa1b-2ep-dsa-50ep-1101",
-    "threshold": 0.1
-}
