@@ -23,4 +23,4 @@ opencv-python
 tqdm
 matplotlib
 scipy
-segment-anything
+git+https://github.com/facebookresearch/segment-anything.git
