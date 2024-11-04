@@ -85,95 +85,25 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 --master_port 2
 
 
 ```zsh
-
-datasets0=(
-    "COCONut_relabeld_COCO_val"
-    "EntitySeg"
-    "ADE20k"
-    "cityscapes"
-)
-datasets1=(
-    "SA1B"
-    "PascalPanopticParts"
-    "PartImageNetPP"
-    "SPIN"
-)
-datasets2=(
-    "EgoHOS"
-    "plantorgans"
-    "MapillaryMetropolis"
-    "NYUDepthv2"
-)
-datasets3=(
-    "tcd"
-    "FoodSeg103"
-    "WireFrame"
-    "ISAID"
-)
-datasets4=(
-    "PhenoBench"
-    "LIP"
-    "SOBA"
-    "CIHP"
-)
-datasets5=(
-    "LoveDA"
-    "SUIM"
-    "MyFood"
-    "DIS5K_DIS_VD"
-)
-datasets6=(
-    "DUTS_TE"
-    "Fashionpedia"
-    "SeginW"
-)
-datasets7=(
-    "LVIS"
-    "PACO"
-    "DRAM"
-)
-
-tokenizers=(
-    # "patch/patch_2_per_side_raster.json"
-    # "patch/patch_4_per_side_raster.json"
-    # "patch/patch_8_per_side_raster.json"
-    # "patch/patch_16_per_side_raster.json"
-
-    # "superpixel/superpixel_slic.json"
-
-    # "directsam/directsam_tiny_dsa_50ep.json"
-    # "directsam/directsam_large_gen3_1023.json"
-
-    # "panoptic/panoptic_mask2former_tiny.json"
-    # "panoptic/panoptic_mask2former_small.json"
-    # "panoptic/panoptic_mask2former_base.json"
-    # "panoptic/panoptic_mask2former_large.json"
-
-    # "panoptic/panoptic_oneformer_tiny.json"
-    # "panoptic/panoptic_oneformer_large.json"
-
-    # "sam/sam_vit_b.json"
-    # "sam/sam_vit_l.json"
-    # "sam/sam_vit_h.json"
-    # "sam/sam_vit_h_48points.json"
-    # "sam/sam_vit_h_64points.json"
-    "sam/sam_vit_h_64points_1layer.json"
-)
+# single debug run
 
 conda activate subobjects
 cd /private/home/delong/workspace/subobjects-VLM/HEIT
-clear
 
-for dataset in $datasets7; do
-    for tokenizer in $tokenizers; do
-
-        CUDA_VISIBLE_DEVICES=7 python token_vs_contour_recall.py \
-            --split $dataset \
-            --tokenizer_config ../configs/visual_tokenizer/$tokenizer \
-            --input_resolution 1024
-
-    done
-done
-
+CUDA_VISIBLE_DEVICES=0 python token_vs_contour_recall.py \
+    --split "COCONut_relabeld_COCO_val" \
+    --tokenizer_config ../configs/visual_tokenizer/sam/sam_vit_h_48points.json \
+    --input_resolution 1024
 
 ```
+
+
+```zsh
+# batch parallel runs
+
+conda activate subobjects
+cd /private/home/delong/workspace/subobjects-VLM
+python scripts/token_vs_contour_recall.py
+
+```
+
