@@ -65,16 +65,14 @@ class SAMTokenizer:
 
         return torch.tensor(batch_masks)
 
-
 def sam_post_processing(masks):
-
-    # find the background mask that is not covered by any instance mask
+    # Ensure masks are boolean
+    masks = np.array(masks).astype(bool)
+    # Find the background mask that is not covered by any instance mask
     bg_mask = ~np.any(masks, axis=0)
     masks = np.concatenate([masks, bg_mask[None, ...]], axis=0)
-
-    # sort masks by area
+    # Sort masks by area
     areas = np.sum(masks, axis=(1, 2))
     sorted_indices = np.argsort(areas)[::-1]
     masks = masks[sorted_indices]
-
     return masks

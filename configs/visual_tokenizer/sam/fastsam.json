@@ -1,0 +1,9 @@
+{
+    "type": "fastsam",
+    "checkpoint": "FastSAM-x",
+    "weights_cache_dir": "/private/home/delong/workspace/subobjects-VLM/visual_tokenizer/weights_cache",
+    "FastSAM_kwargs": {
+        "conf": 0.4,
+        "iou": 0.9
+    }
+}

@@ -24,3 +24,10 @@ tqdm
 matplotlib
 scipy
 git+https://github.com/facebookresearch/segment-anything.git
+
+# required by FastSAM
+ultralytics==8.0.120 
+
+ # required by MobileSAMv2
+onnx
+onnxsim
