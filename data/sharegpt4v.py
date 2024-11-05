@@ -5,31 +5,15 @@ import tqdm
 from PIL import Image
 import random
 
-dir_mapping = {
-    'sam/images': '/home/dchenbs/workspace/datasets/sa1b',
-    'coco/train2017': '/home/dchenbs/workspace/datasets/coco2017/images/train2017',
-    'llava/llava_pretrain/images': '/home/dchenbs/workspace/datasets/sharegpt4v/LLaVA-Pretrain',
-    'wikiart/images': '/home/dchenbs/workspace/datasets/sharegpt4v/WebData/wikiart/images',
-    'share_textvqa/images': '/home/dchenbs/workspace/datasets/sharegpt4v/WebData/share_textvqa/images',
-    'web-celebrity/images': '/home/dchenbs/workspace/datasets/sharegpt4v/WebData/web-celebrity/images',
-        'Choi_Min-sik': 'Choi_Min_sik', 
-        'Lee_Byung-hun': 'Lee_Byung_hun',
-    'web-landmark/images': '/home/dchenbs/workspace/datasets/sharegpt4v/WebData/web-landmark/images',
-    'vg/VG_100K': '/home/dchenbs/workspace/datasets/VisualGenome/VG_100K',
-    'vg/VG_100K_2': '/home/dchenbs/workspace/datasets/VisualGenome/VG_100K_2',
-    'gqa/images': '/home/dchenbs/workspace/datasets/gqa/images',
-    'ocr_vqa/images': '/home/dchenbs/workspace/datasets/sharegpt4v/ocr_vqa/images',
-    'textvqa/train_images': '/home/dchenbs/workspace/datasets/sharegpt4v/textvqa/train_images',
-}
 train_val_split={'train': 0.9, 'val': 0.1}
 
 class ShareGPT4V(torch.utils.data.Dataset):
 
-    def __init__(self, root, split='train', max_samples=None):
-        
+    def __init__(self, root, annotation, split='train', max_samples=None):
+        self.root = root
         self.max_text_tokens = 300
         self.max_samples = max_samples
-        samples = json.load(open(root, 'r'))
+        samples = json.load(open(os.path.join(root, 'sharegpt4v', annotation), 'r'))
 
         if split == 'train':
             start_idx = 0
@@ -43,45 +27,9 @@ class ShareGPT4V(torch.utils.data.Dataset):
         self.samples = samples[start_idx:end_idx]
         print(f'Total samples: {len(samples)}, using {split} split: {len(self.samples)} (from {start_idx} to {end_idx})')
 
-
         self.samples = [s for s in self.samples if 'image' in s]
-        print(f'Total samples: {len(samples)}, after removing text-only samples: {len(self.samples)}')
-
-        self.sam_dir_mapping = {}
-        for i in range(51):
-            files = os.listdir(os.path.join(dir_mapping['sam/images'], f"sa_{i:06}"))
-            for file in files:
-                if file.endswith('.jpg'):
-                    self.sam_dir_mapping[file] = f"sa_{i:06}/{file}"
-
-    def validate_exist(self, valid_img_paths=None):
-        validated_samples = []
-        not_exist = []
-        not_exist_in_provided_list = []
-        for i in tqdm.tqdm(range(len(self.samples))):
-            try:
-                self.__getitem__(i)
-            except:
-                not_exist.append(self.samples[i])
-                continue
-            
-            if valid_img_paths is not None:
-                if self.__getitem__(i, only_return_img_path=True) not in valid_img_paths:
-                    not_exist_in_provided_list.append(self.samples[i])
-                else:
-                    validated_samples.append(self.samples[i])
-            else:
-                validated_samples.append(self.samples[i])
-
-        self.samples = validated_samples
-            
-        print(f'Found {len(not_exist)} samples failed to load due to file not exist.')
-        if len(not_exist_in_provided_list) > 0:
-            print(f'Found {len(not_exist_in_provided_list)} samples failed to load due to file not exist in provided list.')
-        print(f'After validation, {len(self.samples)} samples left.')
-
-        return not_exist
-
+        print(f'After removing text-only samples: {len(self.samples)}')
+        
 
     def process_sharegpt4v_sample(self, img_path, sample, image_tag='<|image|>', human_turn='<|user|>\n', gpt_turn='<|assistant|>\n', eos_token='<|endoftext|>\n'):
     # def __init__(self, root, split='train', user_tag='<|user|>\n', assistant_tag='<|assistant|>\n', image_tag='<|image|>', end_tag='<|endoftext|>\n', max_samples=None):
@@ -99,15 +47,11 @@ class ShareGPT4V(torch.utils.data.Dataset):
         try:
             sample = self.samples[index]
             img_path = sample['image']
-
             if 'sam/images' in img_path:
-                relative_img_path = img_path.split('sam/images/')[-1]
-                img_path = img_path.replace(relative_img_path, self.sam_dir_mapping[relative_img_path])
+                img_path = img_path.replace('sam/images', '/datasets01/segment_anything/032023_anonymized_resized')
+            else:
+                img_path = os.path.join(self.root, sample['image'])
 
-            for org, new in dir_mapping.items():
-                img_path = img_path.replace(org, new)
-
-            # img = Image.open(img_path)
             assert os.path.exists(img_path), f'Image not found: {img_path}'
 
             if only_return_img_path:
@@ -116,7 +60,7 @@ class ShareGPT4V(torch.utils.data.Dataset):
                 return self.process_sharegpt4v_sample(img_path, sample)
         except Exception as e:
             print(f'Error loading sample {index}: {e}')
-            return self.__getitem__(random.randint(0, len(self.samples)-1))
+            # return self.__getitem__((index + 1) % len(self.samples))
     
     def __len__(self):
         if self.max_samples is not None:
