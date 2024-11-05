@@ -1,0 +1,16 @@
+[submodule "visual_tokenizer/EfficientSAM"]
+	path = visual_tokenizer/EfficientSAM
+	url = https://github.com/yformer/EfficientSAM
+	branch = main
+[submodule "visual_tokenizer/FastSAM"]
+	path = visual_tokenizer/FastSAM
+	url = https://github.com/CASIA-IVA-Lab/FastSAM.git
+	branch = main
+[submodule "visual_tokenizer/efficientvit"]
+	path = visual_tokenizer/efficientvit
+	url = https://github.com/mit-han-lab/efficientvit.git
+	branch = main
+[submodule "visual_tokenizer/MobileSAM"]
+	path = visual_tokenizer/MobileSAM
+	url = https://github.com/ChaoningZhang/MobileSAM.git
+	branch = main
