@@ -7,7 +7,7 @@ from PIL import Image
 from .sam import sam_post_processing
 
 import sys
-sys.path.insert(0, 'visual_tokenizer/MobileSAM/MobileSAMv2')
+sys.path.append('/private/home/delong/workspace/subobjects-VLM/visual_tokenizer/MobileSAM/MobileSAMv2')
 
 from mobilesamv2.promt_mobilesamv2 import ObjectAwareModel
 from mobilesamv2 import sam_model_registry, SamPredictor

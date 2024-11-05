@@ -1,0 +1,11 @@
+{
+    "type": "efficientvit",
+    "model_variant": "l2",
+    "weights_cache_dir": "/private/home/delong/workspace/subobjects-VLM/visual_tokenizer/weights_cache",
+    "mask_generator_kwargs": {
+        "box_nms_thresh": 0.7,
+        "points_per_batch": 64,
+        "pred_iou_thresh": 0.9,
+        "stability_score_thresh": 0.9
+    }
+}

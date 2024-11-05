@@ -28,6 +28,11 @@ git+https://github.com/facebookresearch/segment-anything.git
 # required by FastSAM
 ultralytics==8.0.120 
 
- # required by MobileSAMv2
+# required by MobileSAMv2
 onnx
 onnxsim
+
+# required by EfficientViT-SAM
+git+https://github.com/zhijian-liu/torchpack.git@3a5a9f7ac665444e1eb45942ee3f8fc7ffbd84e5
+onnxruntime
+git+https://github.com/alibaba/TinyNeuralNetwork.git

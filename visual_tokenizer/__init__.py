@@ -28,5 +28,10 @@ def get_visual_tokenizer(**kwargs):
     elif kwargs['type'] == 'mobilesamv2':
         from .mobilesamv2 import MobileSAMv2Tokenizer
         return MobileSAMv2Tokenizer(**kwargs)
+
+    elif kwargs['type'] == 'efficientvit':
+        from .efficientvit import EfficientViTTokenizer
+        return EfficientViTTokenizer(**kwargs)
+    
     else:
         raise NotImplementedError
