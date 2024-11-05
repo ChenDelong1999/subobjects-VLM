@@ -113,7 +113,12 @@ if __name__ == '__main__':
     }
     output_dir = os.path.join(args.output_dir, f'{args.split}')
     os.makedirs(output_dir, exist_ok=True)
-    file_path = os.path.join(output_dir, f'{args.tokenizer_config.split("/")[-1].replace(".json", "")}_{args.time}.json')
+    
+    file_path = os.path.join(output_dir, f'{args.tokenizer_config.split("/")[-1].replace(".json", "")}')
+    if args.threshold is not None:
+        file_path += f'_@{args.threshold}'
+    file_path += f'_{args.time}.json'
+
     json.dump(results, open(file_path, 'w'), indent=4)
 
     print(f'Mean number of tokens: {results["mean_tokens"]}, Mean recall: {results["mean_recall"]}')
