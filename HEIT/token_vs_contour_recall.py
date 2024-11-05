@@ -62,6 +62,7 @@ if __name__ == '__main__':
     parser.add_argument('--output_dir', type=str, default='outputs/token_vs_contour_recall', help='Directory to save the output')
     parser.add_argument('--tolerance', type=int, default=10, help='Tolerance level for processing')
     parser.add_argument('--max_tokens', type=int, default=1024, help='Maximum number of tokens to generate')
+    parser.add_argument('--threshold', type=float, default=None, help='For DirectSAM ablation')
     
     args = parser.parse_args()
     args.time = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -70,6 +71,10 @@ if __name__ == '__main__':
     print(dataset)
 
     config = json.load(open(args.tokenizer_config, 'r'))
+    if args.threshold is not None:
+        config['threshold'] = args.threshold
+
+    print(config)
     visual_tokenizer = get_visual_tokenizer(
         **config, 
         image_resolution=args.input_resolution, 

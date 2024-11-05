@@ -6,36 +6,36 @@ from multiprocessing.pool import ThreadPool
 
 # List of datasets
 datasets = [
-    "COCONut_relabeld_COCO_val",
-    "EntitySeg",
-    "ADE20k",
-    "cityscapes",
+    # "COCONut_relabeld_COCO_val",
+    # "EntitySeg",
+    # "ADE20k",
+    # "cityscapes",
     "SA1B",
-    "PascalPanopticParts",
-    "PartImageNetPP",
-    "SPIN",
-    "EgoHOS",
-    "plantorgans",
-    "MapillaryMetropolis",
-    "NYUDepthv2",
-    "tcd",
-    "FoodSeg103",
-    "WireFrame",
-    "ISAID",
-    "PhenoBench",
-    "LIP",
-    "SOBA",
-    "CIHP",
-    "LoveDA",
-    "SUIM",
-    "MyFood",
-    "DIS5K_DIS_VD",
-    "DUTS_TE",
-    "Fashionpedia",
-    "SeginW",
-    "LVIS",
-    "PACO",
-    "DRAM",
+    # "PascalPanopticParts",
+    # "PartImageNetPP",
+    # "SPIN",
+    # "EgoHOS",
+    # "plantorgans",
+    # "MapillaryMetropolis",
+    # "NYUDepthv2",
+    # "tcd",
+    # "FoodSeg103",
+    # "WireFrame",
+    # "ISAID",
+    # "PhenoBench",
+    # "LIP",
+    # "SOBA",
+    # "CIHP",
+    # "LoveDA",
+    # "SUIM",
+    # "MyFood",
+    # "DIS5K_DIS_VD",
+    # "DUTS_TE",
+    # "Fashionpedia",
+    # "SeginW",
+    # "LVIS",
+    # "PACO",
+    # "DRAM",
 ]
 
 # List of tokenizers
@@ -49,7 +49,7 @@ tokenizers = [
 
     # "directsam/directsam_tiny_sa1b_2ep.json",
     # "directsam/directsam_tiny_dsa_50ep.json",
-    # "directsam/directsam_tiny_dsa_75ep.json",
+    "directsam/directsam_tiny_dsa_75ep.json",
 
     # "directsam/directsam_large_sa1b_2ep.json",
     # "directsam/directsam_large_gen1_1008.json",
@@ -70,7 +70,7 @@ tokenizers = [
     # "sam/sam_vit_h_48points.json",
     # "sam/sam_vit_h_64points.json",
     # "sam/sam_vit_h_64points_1layer.json",
-    "sam/sam_vit_h_64points_2layer.json",
+    # "sam/sam_vit_h_64points_2layer.json",
 ]
 
 # Number of GPUs / Max concurrent jobs
@@ -87,7 +87,7 @@ WORK_DIR = '/private/home/delong/workspace/subobjects-VLM/HEIT'
 
 # Function to run a single job
 def run_job(args):
-    dataset, tokenizer, gpu_id = args
+    dataset, tokenizer, gpu_id, threshold = args
 
     env = os.environ.copy()
     env['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
@@ -98,7 +98,9 @@ def run_job(args):
     python token_vs_contour_recall.py \
         --split {dataset} \
         --tokenizer_config ../configs/visual_tokenizer/{tokenizer} \
-        --input_resolution 1024
+        --input_resolution 1024 \
+        --output_dir outputs/token_vs_contour_recall/directsam_threshold_ablation \
+        --threshold {threshold}
     """
 
     # Run the command
@@ -110,8 +112,9 @@ gpu_id = 0
 
 for dataset in datasets:
     for tokenizer in tokenizers:
-        jobs.append((dataset, tokenizer, gpu_id))
-        gpu_id = (gpu_id + 1) % NUM_GPUS
+        for threshold in [0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]:
+            jobs.append((dataset, tokenizer, gpu_id, threshold))
+            gpu_id = (gpu_id + 1) % NUM_GPUS
 
 # Run jobs with ThreadPool
 pool = ThreadPool(NUM_GPUS)
