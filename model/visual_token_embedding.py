@@ -31,6 +31,8 @@ class VisualTokenEmbedding(torch.nn.Module):
         else:
             raise NotImplementedError
 
+        self.output_resolution = config.output_resolution
+
 
     @property
     def dtype(self):
@@ -56,6 +58,14 @@ class VisualTokenEmbedding(torch.nn.Module):
         """
         with torch.no_grad():
             batch_features = self.vision_encoder(batch_images)
+
+        # upsample batch_features to output_resolution: 
+        # N, C, H, W -> N, C, output_resolution, output_resolution
+        batch_features = F.interpolate(
+            batch_features, 
+            size=(self.output_resolution, self.output_resolution),
+            mode='bilinear'
+        )
 
         batch_masks = batch_masks.to(batch_features.device).to(batch_features.dtype)
 

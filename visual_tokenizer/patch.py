@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 class PatchTokenizer:
-    def __init__(self, patch_per_side=16, order='raster', image_resolution=224, max_tokens=256, **kwargs):
+    def __init__(self, image_resolution, max_tokens, patch_per_side=16, order='raster', **kwargs):
         self.patch_per_side = patch_per_side
         self.order = order
         assert self.order in ['raster', 'random']

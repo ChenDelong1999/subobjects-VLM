@@ -34,12 +34,16 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 if __name__ == '__main__':
 
+    # local_rank = int(os.environ.get('LOCAL_RANK', 0))
+    # torch.cuda.set_device(local_rank)
+
     torch.distributed.init_process_group(backend='nccl')
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset', type=str, required=True)
     parser.add_argument('--dataset_root', type=str, required=True)
+    parser.add_argument('--split', type=str, default='train')
     parser.add_argument('--train_samples', type=int, default=None)
 
     parser.add_argument('--trainer_config', type=str, required=True)
@@ -53,7 +57,8 @@ if __name__ == '__main__':
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1)
     parser.add_argument('--dataloader_num_workers', type=int, default=8)
 
-    parser.add_argument('--image_resolution', type=int, default=768)
+    parser.add_argument('--embedding_input_resolution', type=int, default=384)
+    parser.add_argument('--tokenizer_input_resolution', type=int, default=384)
     parser.add_argument('--max_visual_tokens', type=int, default=128)
 
     parser.add_argument('--vm_loss_weight', type=float, default=1.0)
@@ -70,7 +75,7 @@ if __name__ == '__main__':
     
     # load dataset, tokenizer, model, and image segmenter
     train_dataset = get_dataset(
-        args.dataset, args.dataset_root, split='train', max_samples=args.train_samples)
+        args.dataset, args.dataset_root, split=args.split, max_samples=args.train_samples)
 
     # calculate max length
     if args.insert_queries:
@@ -82,7 +87,8 @@ if __name__ == '__main__':
     model, textual_tokenizer = create_vlm(
         llm = args.llm, 
         visual_embed_config = args.visual_embed_config,
-        image_resolution=args.image_resolution,
+        embedding_input_resolution=args.embedding_input_resolution,
+        tokenizer_input_resolution=args.tokenizer_input_resolution,
         lora_config = args.lora_config, 
         model_max_length=model_max_length
         )
@@ -97,8 +103,9 @@ if __name__ == '__main__':
     # create visual and VL tokenizer (data_collector)
     visual_tokenizer = get_visual_tokenizer(
         **json.load(open(args.visual_tokenizer_config)), 
-        image_resolution=args.image_resolution, 
+        image_resolution=args.tokenizer_input_resolution, 
         max_tokens=args.max_visual_tokens,
+        # device=f'cuda'
         device=f'cuda:{args.rank}'
         )
     vl_tokenizer = VisualTextualTokenization(textual_tokenizer, visual_tokenizer)

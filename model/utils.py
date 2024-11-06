@@ -55,7 +55,8 @@ def create_textual_tokenizer(tokenizer_path, model_max_length):
 def create_vlm(
         llm,
         visual_embed_config=None,
-        image_resolution=None,
+        embedding_input_resolution=None,
+        tokenizer_input_resolution=None,
         lora_config=None,
         model_max_length=None):
 
@@ -81,7 +82,8 @@ def create_vlm(
     if visual_embed_config is not None:
         if type(visual_embed_config) == str and visual_embed_config.endswith('.json'):
             visual_embed_config = json.load(open(visual_embed_config))
-        visual_embed_config['image_resolution'] = image_resolution
+        visual_embed_config['output_resolution'] = tokenizer_input_resolution
+        visual_embed_config['image_resolution'] = embedding_input_resolution
         visual_embed_config = PretrainedConfig.from_dict(visual_embed_config)
         print(f'Biulding VLM from config: {visual_embed_config}')
         model.init_visual(visual_embed_config)
