@@ -4,8 +4,10 @@ import json
 import tqdm
 from PIL import Image
 import random
+# set random seed
+random.seed(42)
 
-train_val_split={'train': 0.9, 'val': 0.1}
+train_val_split={'train': 0.95, 'val': 0.05}
 
 class ShareGPT4V(torch.utils.data.Dataset):
 
@@ -14,6 +16,7 @@ class ShareGPT4V(torch.utils.data.Dataset):
         self.max_text_tokens = 300
         self.max_samples = max_samples
         samples = json.load(open(os.path.join(root, 'sharegpt4v', annotation), 'r'))
+        random.shuffle(samples)
 
         if split == 'train':
             start_idx = 0
@@ -51,7 +54,7 @@ class ShareGPT4V(torch.utils.data.Dataset):
                 img_path = img_path.replace('sam/images', '/datasets01/segment_anything/032023_anonymized_resized')
             else:
                 img_path = os.path.join(self.root, sample['image'])
-
+                
             assert os.path.exists(img_path), f'Image not found: {img_path}'
 
             if only_return_img_path:
@@ -60,7 +63,7 @@ class ShareGPT4V(torch.utils.data.Dataset):
                 return self.process_sharegpt4v_sample(img_path, sample)
         except Exception as e:
             print(f'Error loading sample {index}: {e}')
-            # return self.__getitem__((index + 1) % len(self.samples))
+            return self.__getitem__((index + 1) % len(self.samples))
     
     def __len__(self):
         if self.max_samples is not None:
