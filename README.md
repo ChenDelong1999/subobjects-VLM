@@ -24,36 +24,53 @@ pip install -r requirements.txt
 srun --gpus-per-node=8 --partition=learnfair --time=4320 --cpus-per-task 80 --mem 512G --pty /bin/zsh -l
 ```
 
+### ImageNet Classification
 ```bash
-# V100 16G
+# V100 32G
 cd /private/home/delong/workspace/subobjects-VLM
 conda activate subobjects
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 --master_port 29500 train.py \
-    --epoch 10 --batch_size 8 --gradient_accumulation_steps 1 \
+    --epoch 10 --batch_size 16 --gradient_accumulation_steps 1 \
     --dataset imagenet --dataset_root /datasets01/imagenet_full_size/061417 \
-    --llm HuggingFaceTB/SmolLM-135M-Instruct \
+    --llm HuggingFaceTB/SmolLM-360M-Instruct \
     --visual_embed_config      configs/visual_embedding/rgb_pixel.json \
-    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam_b0.json \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_6_per_side_raster.json \
     --trainer_config  configs/training/default.yaml \
-    --dataloader_num_workers 10
+    --image_resolution 384 \
+    --dataloader_num_workers 8
     
 ```
+
+
+### ShareGPT4V VLM
+
+```bash
+# Pretrain
+
+cd /private/home/delong/workspace/subobjects-VLM
+conda activate subobjects
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 train.py \
+    --epoch 1 --batch_size 1 --gradient_accumulation_steps 32 \
+    --dataset sharegpt4v --dataset_root '/private/home/delong/workspace/data/ShareGPT4V' --split 'share-captioner_coco_lcs_sam_1246k_1107.json' \
+    --llm HuggingFaceTB/SmolLM2-1.7B-Instruct \
+    --visual_embed_config      configs/visual_embedding/clip_vit_l_14_336.json \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep.json \
+    --trainer_config  configs/training/sharegpt4v_pt.yaml \
+    --embedding_input_resolution 336 \
+    --tokenizer_input_resolution 336 \
+    --dataloader_num_workers 8
+    
+```
+
+
+
 
 
 ```bash
  
 # Tokenizers
-    --max_visual_tokens 16 --visual_tokenizer_config configs/visual_tokenizer/directsam_b0.json \
-    --max_visual_tokens 16 --visual_tokenizer_config configs/visual_tokenizer/patch_4_per_side_raster.json \
-
-    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam_b0.json \
-    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch_6_per_side_raster.json \
-    
-    --max_visual_tokens 64 --visual_tokenizer_config configs/visual_tokenizer/directsam_b0.json \
-    --max_visual_tokens 64 --visual_tokenizer_config configs/visual_tokenizer/patch_8_per_side_raster.json \
-    
-    --max_visual_tokens 256 --visual_tokenizer_config configs/visual_tokenizer/directsam_b0.json \
-    --max_visual_tokens 256 --visual_tokenizer_config configs/visual_tokenizer/patch_16_per_side_raster.json \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_75ep.json \
+    --max_visual_tokens 576 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_24_per_side_raster.json \
 
 
     --visual_tokenizer_config configs/visual_tokenizer/patch_8_per_side_raster.json \
@@ -69,6 +86,8 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 --master_port 2
     --visual_embed_config configs/visual_embedding/rgb_pixel.json \
 
 # LLMs
+    --llm HuggingFaceTB/SmolLM2-1.7B-Instruct \
+
     --llm HuggingFaceTB/SmolLM-135M-Instruct \
     --llm HuggingFaceTB/SmolLM-360M-Instruct \
     --llm HuggingFaceTB/SmolLM-1.7B-Instruct \

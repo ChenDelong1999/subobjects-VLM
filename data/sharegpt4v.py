@@ -7,28 +7,18 @@ import random
 # set random seed
 random.seed(42)
 
-train_val_split={'train': 0.95, 'val': 0.05}
 
 class ShareGPT4V(torch.utils.data.Dataset):
 
-    def __init__(self, root, annotation, split='train', max_samples=None):
+    def __init__(self, root, split, max_samples=None):
         self.root = root
         self.max_text_tokens = 300
         self.max_samples = max_samples
-        samples = json.load(open(os.path.join(root, 'sharegpt4v', annotation), 'r'))
+        samples = json.load(open(os.path.join(root, 'sharegpt4v', split), 'r'))
         random.shuffle(samples)
 
-        if split == 'train':
-            start_idx = 0
-            end_idx = int(len(samples) * train_val_split['train'])
-        elif split == 'val':
-            start_idx = int(len(samples) * train_val_split['train'])
-            end_idx = len(samples)
-        else:
-            raise ValueError(f'split should be one of [train, val], but got {split}')
-        
-        self.samples = samples[start_idx:end_idx]
-        print(f'Total samples: {len(samples)}, using {split} split: {len(self.samples)} (from {start_idx} to {end_idx})')
+        self.samples = samples
+        print(f'Total samples: {len(samples)}, in {split} split: {len(self.samples)}')
 
         self.samples = [s for s in self.samples if 'image' in s]
         print(f'After removing text-only samples: {len(self.samples)}')
