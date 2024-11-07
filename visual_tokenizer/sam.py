@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from PIL import Image
 from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
+import cv2
 
 class SAMTokenizer:
 
@@ -69,8 +70,18 @@ def sam_post_processing(masks):
     # Ensure masks are boolean
     masks = np.array(masks).astype(bool)
     # Find the background mask that is not covered by any instance mask
-    bg_mask = ~np.any(masks, axis=0)
-    masks = np.concatenate([masks, bg_mask[None, ...]], axis=0)
+    background = ~np.any(masks, axis=0)
+    # masks = np.concatenate([masks, background[None, ...]], axis=0)
+    
+    # generate masks by connected component labelling on the background mask
+    background = background.astype(np.uint8)
+    num_labels, labels = cv2.connectedComponents(background)
+    bg_masks = []
+    for i in range(1, num_labels):
+        bg_mask = labels == i
+        bg_masks.append(bg_mask)
+    masks = np.concatenate([masks, bg_masks], axis=0)
+    
     # Sort masks by area
     areas = np.sum(masks, axis=(1, 2))
     sorted_indices = np.argsort(areas)[::-1]
