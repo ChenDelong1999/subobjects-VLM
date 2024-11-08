@@ -54,7 +54,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 train.py \
     --dataset sharegpt4v --dataset_root '/private/home/delong/workspace/data/ShareGPT4V' --split 'share-captioner_coco_lcs_sam_1246k_1107.json' \
     --llm HuggingFaceTB/SmolLM2-1.7B-Instruct \
     --visual_embed_config      configs/visual_embedding/clip_vit_l_14_336.json \
-    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep.json \
+    --max_visual_tokens 256 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_16_per_side_raster.json \
     --trainer_config  configs/training/sharegpt4v_pt.yaml \
     --embedding_input_resolution 336 \
     --tokenizer_input_resolution 336 \
@@ -69,7 +69,12 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 train.py \
 ```bash
  
 # Tokenizers
-    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_75ep.json \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep.json \
+    
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_6_per_side_raster.json \
+    --max_visual_tokens 64 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_8_per_side_raster.json \
+    --max_visual_tokens 144 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_12_per_side_raster.json \
+    --max_visual_tokens 256 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_16_per_side_raster.json \
     --max_visual_tokens 576 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_24_per_side_raster.json \
 
 
@@ -109,10 +114,11 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 train.py \
 conda activate subobjects
 cd /private/home/delong/workspace/subobjects-VLM/HEIT
 
-CUDA_VISIBLE_DEVICES=0 python token_vs_contour_recall.py \
+CUDA_VISIBLE_DEVICES=0 python heit_inference.py \
     --split "COCONut_relabeld_COCO_val" \
-    --tokenizer_config ../configs/visual_tokenizer/sam/sam_vit_h_48points.json \
-    --input_resolution 1024
+    --tokenizer_config ../configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep.json \
+    --input_resolution 1024 \
+    --output_dir outputs/tokenized_HEIT
 
 ```
 
@@ -122,7 +128,7 @@ CUDA_VISIBLE_DEVICES=0 python token_vs_contour_recall.py \
 
 conda activate subobjects
 cd /private/home/delong/workspace/subobjects-VLM
-python scripts/token_vs_contour_recall.py
+python scripts/run_heit_inference.py
 
 ```
 
