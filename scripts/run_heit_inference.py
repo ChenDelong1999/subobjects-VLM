@@ -45,15 +45,17 @@ tokenizers = [
     # "patch/patch_8_per_side_raster.json",
     # "patch/patch_16_per_side_raster.json",
 
-    # "superpixel/superpixel_slic.json",
+    "superpixel/superpixel_slic.json",
 
-    # "directsam/directsam_tiny_sa1b_2ep.json",
-    # "directsam/directsam_tiny_dsa_50ep.json",
-    "directsam/directsam_tiny_dsa_75ep.json",
+    # "directsam/directsam_tiny_dsa_100ep@0.01.json",
+    # "directsam/directsam_tiny_dsa_100ep@0.05.json",
+    # "directsam/directsam_tiny_dsa_100ep@0.1.json",
+    # "directsam/directsam_tiny_dsa_100ep@0.15.json",
+    # "directsam/directsam_tiny_dsa_100ep@0.2.json",
+    # "directsam/directsam_tiny_dsa_100ep@0.3.json",
+    # "directsam/directsam_tiny_dsa_100ep@0.4.json",
+    # "directsam/directsam_tiny_dsa_100ep@0.5.json",
 
-    # "directsam/directsam_large_sa1b_2ep.json",
-    # "directsam/directsam_large_gen1_1008.json",
-    # "directsam/directsam_large_gen2_1014.json",
     # "directsam/directsam_large_gen3_1023.json",
 
     # "panoptic/panoptic_mask2former_tiny.json",
@@ -77,32 +79,20 @@ tokenizers = [
 ]
 
 NUM_GPUS = 8
-
-# Base command components
-base_command = [
-    'python', 'token_vs_contour_recall.py',
-    '--input_resolution', '1024'
-]
-
-# Paths
 WORK_DIR = '/private/home/delong/workspace/subobjects-VLM/HEIT'
 
 # Function to run a single job
 def run_job(args):
-    dataset, tokenizer, gpu_id, threshold = args
-
+    dataset, tokenizer, gpu_id, input_resolution = args
     env = os.environ.copy()
-    # env['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
 
-    # Activate conda environment and change directory
     command = f"""
     cd {WORK_DIR} && \
-    CUDA_VISIBLE_DEVICES={str(gpu_id)}  python token_vs_contour_recall.py \
+    CUDA_VISIBLE_DEVICES={str(gpu_id)}  python heit_inference.py \
         --split {dataset} \
         --tokenizer_config ../configs/visual_tokenizer/{tokenizer} \
-        --input_resolution 1024 \
-        --output_dir outputs/token_vs_contour_recall/directsam_threshold_ablation \
-        --threshold {threshold}
+        --input_resolution {input_resolution} \
+        --output_dir outputs/tokenized_HEIT
     """
 
     # Run the command
@@ -114,8 +104,8 @@ gpu_id = 0
 
 for dataset in datasets:
     for tokenizer in tokenizers:
-        for threshold in [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
-            jobs.append((dataset, tokenizer, gpu_id, threshold))
+        for input_resolution in [1024]:
+            jobs.append((dataset, tokenizer, gpu_id, input_resolution))
             gpu_id = (gpu_id + 1) % NUM_GPUS
 
 for job in jobs:
