@@ -11,7 +11,7 @@ class PatchTokenizer:
         if max_tokens == -1:
             self.max_tokens = self.patch_per_side **2
         else:
-            self.max_tokens = self.max_tokens
+            self.max_tokens = max_tokens
         
         self.patch_size = image_resolution // patch_per_side
         self.num_patches = patch_per_side * patch_per_side

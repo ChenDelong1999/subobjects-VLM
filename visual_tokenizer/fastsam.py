@@ -18,6 +18,7 @@ class FastSAMTokenizer:
         # Load FastSAM model
         fastsam_checkpoint = os.path.join(weights_cache_dir, f"fastsam/{checkpoint}.pt")
         self.fastsam = FastSAM(fastsam_checkpoint)
+        self.fastsam.to(self.device)
 
         # Set default FastSAM parameters if not provided
         if FastSAM_kwargs is None:
@@ -61,7 +62,7 @@ class FastSAMTokenizer:
             mask = prompt_process.everything_prompt()
             if isinstance(mask, list) or mask.numel() == 0:
                 # No masks found, create an empty mask
-                mask = torch.zeros((1, self.image_resolution, self.image_resolution))
+                mask = np.zeros((1, self.image_resolution, self.image_resolution), dtype=bool)
             else:
                 mask = mask.cpu().numpy()
             # Process masks

@@ -71,16 +71,16 @@ def sam_post_processing(masks):
     masks = np.array(masks).astype(bool)
     # Find the background mask that is not covered by any instance mask
     background = ~np.any(masks, axis=0)
-    # masks = np.concatenate([masks, background[None, ...]], axis=0)
-    
-    # generate masks by connected component labelling on the background mask
-    background = background.astype(np.uint8)
-    num_labels, labels = cv2.connectedComponents(background)
-    bg_masks = []
-    for i in range(1, num_labels):
-        bg_mask = labels == i
-        bg_masks.append(bg_mask)
-    masks = np.concatenate([masks, bg_masks], axis=0)
+
+    if np.sum(background) > 0:
+        # generate masks by connected component labelling on the background mask
+        background = background.astype(np.uint8)
+        num_labels, labels = cv2.connectedComponents(background)
+        bg_masks = []
+        for i in range(1, num_labels):
+            bg_mask = labels == i
+            bg_masks.append(bg_mask)
+        masks = np.concatenate([masks, bg_masks], axis=0)
     
     # Sort masks by area
     areas = np.sum(masks, axis=(1, 2))
