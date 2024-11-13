@@ -103,14 +103,16 @@ class VisualTokenEmbedding(torch.nn.Module):
         M = batch_masks.shape[1]
         dtype = batch_features.dtype
 
+        # batch_features.shape: torch.Size([4, 3, 512, 512])
+        # batch_masks.shape: torch.Size([4, 256, 512, 512])
+
         # Get ROI boxes for each mask
-        roi_boxes_image_scale = self.get_roi_boxes_from_masks(batch_masks)
-        roi_boxes_feat_scale = [box / H_image * H_feature for box in roi_boxes_image_scale]
+        roi_boxes = self.get_roi_boxes_from_masks(batch_masks)
 
         # Perform ROIAlign for features
         roi_features = ops.roi_align(
             batch_features.float(), 
-            roi_boxes_feat_scale, 
+            roi_boxes, 
             output_size=(self.config.token_roi_resolution, self.config.token_roi_resolution),
             sampling_ratio=1
             ).view(N, M, C, self.config.token_roi_resolution, self.config.token_roi_resolution)
@@ -126,7 +128,7 @@ class VisualTokenEmbedding(torch.nn.Module):
         # Perform ROIAlign for masks
         roi_masks = self.crop_roi_masks(
             batch_masks_feat_scale,
-            roi_boxes_feat_scale,
+            roi_boxes,
             self.config.token_mask_resolution
         ).to(roi_features.device, dtype=roi_features.dtype)
 
@@ -140,7 +142,7 @@ class VisualTokenEmbedding(torch.nn.Module):
         roi_features = roi_features * roi_masks_in_token_resolution.repeat(1, 1, C, 1, 1)
         embeddings = roi_features.view(N, M, -1)
 
-        return torch.stack(roi_boxes_image_scale) / H_image, roi_masks[:, :, 0], embeddings.to(dtype)
+        return torch.stack(roi_boxes) / H_image, roi_masks[:, :, 0], embeddings.to(dtype)
     
 
     def get_roi_boxes_from_masks(self, batch_masks):
@@ -164,8 +166,8 @@ class VisualTokenEmbedding(torch.nn.Module):
         empty_masks = (mask_sums == 0)
         
         # Expand bounding boxes by 1 pixel and clip to image boundaries
-        x_min = torch.clamp(x_min - 1, min=0)
-        y_min = torch.clamp(y_min - 1, min=0)
+        x_min = torch.clamp(x_min, min=0)
+        y_min = torch.clamp(y_min, min=0)
         x_max = torch.clamp(x_max + 1, max=W-1)
         y_max = torch.clamp(y_max + 1, max=H-1)
         
