@@ -49,13 +49,13 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 --master_port 2
 
 cd /private/home/delong/workspace/subobjects-VLM
 conda activate subobjects
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 train.py \
+torchrun --nproc_per_node 1 train.py \
     --epoch 1 --batch_size 1 --gradient_accumulation_steps 32 \
     --dataset sharegpt4v --dataset_root '/private/home/delong/workspace/data/ShareGPT4V' --split 'share-captioner_coco_lcs_sam_1246k_1107.json' \
-    --llm HuggingFaceTB/SmolLM2-1.7B-Instruct \
+    --llm HuggingFaceTB/SmolLM2-135M-Instruct \
     --visual_embed_config      configs/visual_embedding/clip_resnet50.json \
-    --max_visual_tokens 9 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep@0.1.json \
-    --trainer_config  configs/training/sharegpt4v_pt.yaml \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_6_per_side_raster.json \
+    --trainer_config  configs/training/debug.yaml \
     --embedding_input_resolution 512 \
     --tokenizer_input_resolution 512 \
     --dataloader_num_workers 8

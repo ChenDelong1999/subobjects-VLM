@@ -34,8 +34,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 if __name__ == '__main__':
 
-    # local_rank = int(os.environ.get('LOCAL_RANK', 0))
-    # torch.cuda.set_device(local_rank)
+    local_rank = int(os.environ.get('LOCAL_RANK', 0))
+    torch.cuda.set_device(local_rank)
 
     torch.distributed.init_process_group(backend='nccl')
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--lm_loss_weight', type=float, default=1.0)
     parser.add_argument('--insert_queries', action='store_true')
 
-    parser.add_argument('--run_comment', type=str, default='')
+    parser.add_argument('--output_dir', type=str)
 
     args = parser.parse_args()
     args = load_args_from_yaml(args.trainer_config, args)
@@ -105,7 +105,6 @@ if __name__ == '__main__':
         **json.load(open(args.visual_tokenizer_config)), 
         image_resolution=args.tokenizer_input_resolution, 
         max_tokens=args.max_visual_tokens,
-        # device=f'cuda'
         device=f'cuda:{args.rank}'
         )
     vl_tokenizer = VisualTextualTokenization(textual_tokenizer, visual_tokenizer)
