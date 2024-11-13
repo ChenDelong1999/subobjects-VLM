@@ -1,13 +1,13 @@
 
 
 def get_visual_tokenizer(**kwargs):
-    if kwargs['type'] == 'directsam':
-        from .directsam import DirectSAMTokenizer
-        return DirectSAMTokenizer(**kwargs)
-    
-    elif kwargs['type'] == 'patch':
+    if kwargs['type'] == 'patch':
         from .patch import PatchTokenizer
         return PatchTokenizer(**kwargs)
+    
+    elif kwargs['type'] == 'directsam':
+        from .directsam import DirectSAMTokenizer
+        return DirectSAMTokenizer(**kwargs)
     
     elif kwargs['type'] == 'superpixel':
         from .superpixel import SuperpixelTokenizer
