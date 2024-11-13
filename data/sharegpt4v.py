@@ -10,8 +10,13 @@ random.seed(42)
 
 class ShareGPT4V(torch.utils.data.Dataset):
 
-    def __init__(self, root, split, max_samples=None):
+    def __init__(self, root, split, user_tag='<|user|>\n', assistant_tag='<|assistant|>\n', image_tag='<|image|>', end_tag='<|endoftext|>\n', max_samples=None):
         self.root = root
+        self.user_tag = user_tag
+        self.assistant_tag = assistant_tag
+        self.image_tag = image_tag
+        self.end_tag = end_tag
+
         self.max_text_tokens = 300
         self.max_samples = max_samples
         samples = json.load(open(os.path.join(root, 'sharegpt4v', split), 'r'))
@@ -24,12 +29,11 @@ class ShareGPT4V(torch.utils.data.Dataset):
         print(f'After removing text-only samples: {len(self.samples)}')
         
 
-    def process_sharegpt4v_sample(self, img_path, sample, image_tag='<|image|>', human_turn='<|user|>\n', gpt_turn='<|assistant|>\n', eos_token='<|endoftext|>\n'):
-    # def __init__(self, root, split='train', user_tag='<|user|>\n', assistant_tag='<|assistant|>\n', image_tag='<|image|>', end_tag='<|endoftext|>\n', max_samples=None):
+    def process_sharegpt4v_sample(self, img_path, sample):
         text = ''
         for utterance in sample['conversations']:
-            text += human_turn if utterance['from']=='human' else gpt_turn
-            text += utterance['value'].replace('<image>', image_tag) + eos_token
+            text += self.user_tag if utterance['from']=='human' else self.assistant_tag
+            text += utterance['value'].replace('<image>', self.image_tag) + self.end_tag
         
         image = Image.open(img_path).convert('RGB')
         return {"text": text, "image": image.convert('RGB')}
