@@ -196,7 +196,7 @@ class VisualTokenEmbedding(torch.nn.Module):
         # Perform roi_align on the masks
         cropped_masks = ops.roi_align(
             batch_masks_flat.float(),  # Ensure the masks are in float
-            boxes,
+            boxes.float(),
             output_size=token_roi_resolution,
             spatial_scale=1.0,          # Masks are in the same scale
             sampling_ratio=0,

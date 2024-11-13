@@ -53,11 +53,11 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 train.py \
     --epoch 1 --batch_size 1 --gradient_accumulation_steps 32 \
     --dataset sharegpt4v --dataset_root '/private/home/delong/workspace/data/ShareGPT4V' --split 'share-captioner_coco_lcs_sam_1246k_1107.json' \
     --llm HuggingFaceTB/SmolLM2-1.7B-Instruct \
-    --visual_embed_config      configs/visual_embedding/clip_vit_l_14_336.json \
-    --max_visual_tokens 256 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_16_per_side_raster.json \
+    --visual_embed_config      configs/visual_embedding/clip_resnet50.json \
+    --max_visual_tokens 9 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep@0.1.json \
     --trainer_config  configs/training/sharegpt4v_pt.yaml \
-    --embedding_input_resolution 336 \
-    --tokenizer_input_resolution 336 \
+    --embedding_input_resolution 512 \
+    --tokenizer_input_resolution 512 \
     --dataloader_num_workers 8
     
 ```
@@ -69,7 +69,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 train.py \
 ```bash
  
 # Tokenizers
-    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep.json \
+    --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep@0.1.json \
     
     --max_visual_tokens 36 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_6_per_side_raster.json \
     --max_visual_tokens 64 --visual_tokenizer_config configs/visual_tokenizer/patch/patch_8_per_side_raster.json \

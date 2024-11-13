@@ -33,5 +33,5 @@ def visualize_sample(sample, inputs):
     plt.imshow(inputs['image'][0])
 
     plt.subplot(1, 2, 2)
-    plt.imshow(visualize_masks(inputs['image'][0], inputs['masks'][0]))
+    plt.imshow(visualize_masks(inputs['image'][0], inputs['masks'][0].cpu().numpy()))
     plt.show()

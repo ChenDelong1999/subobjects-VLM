@@ -45,7 +45,7 @@ tokenizers = [
     # "patch/patch_8_per_side_raster.json",
     # "patch/patch_16_per_side_raster.json",
 
-    "superpixel/superpixel_slic.json",
+    # "superpixel/superpixel_slic.json",
 
     # "directsam/directsam_tiny_dsa_100ep@0.01.json",
     # "directsam/directsam_tiny_dsa_100ep@0.05.json",
@@ -74,7 +74,7 @@ tokenizers = [
     # "sam/sam_vit_h_64points_1layer.json",
     # "sam/sam_vit_h_64points_2layer.json",
     
-    # "sam/fastsam.json",
+    "sam/fastsam.json",
     # "sam/mobilesamv2.json",
 ]
 

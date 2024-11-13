@@ -1,5 +1,5 @@
 {
-  "token_roi_resolution": 5,
+  "token_roi_resolution": 3,
   "token_mask_resolution": 64,
   "vision_encoder_type": "timm_backbone",
   "vision_encoder_name": "resnet50_clip.openai"

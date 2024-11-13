@@ -26,6 +26,15 @@ if __name__ == '__main__':
     dataset = load_dataset("chendelong/HEIT", split=args.split)
     print(dataset)
 
+    print(args)
+    samples = []
+    output_dir = os.path.join(args.output_dir, f'{args.split}/{args.input_resolution}/{args.tokenizer_config.split("/")[-1].replace(".json", "")}')
+    os.makedirs(output_dir, exist_ok=True)
+
+    if len(os.listdir(output_dir)) == len(dataset):
+        print(f'Output directory {output_dir} already has {len(dataset)} files. Exiting...')
+        sys.exit(0)
+
     config = json.load(open(args.tokenizer_config, 'r'))
     print(config)
     visual_tokenizer = get_visual_tokenizer(
@@ -33,11 +42,6 @@ if __name__ == '__main__':
         image_resolution=args.input_resolution, 
         max_tokens=1024
     )
-
-    print(args)
-    samples = []
-    output_dir = os.path.join(args.output_dir, f'{args.split}/{args.input_resolution}/{args.tokenizer_config.split("/")[-1].replace(".json", "")}')
-    os.makedirs(output_dir, exist_ok=True)
 
     # for i in tqdm.tqdm(range(5)):
     for i in tqdm.tqdm(range(len(dataset))):
