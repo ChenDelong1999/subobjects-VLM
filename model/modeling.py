@@ -50,10 +50,14 @@ class SubobjectVLM(PreTrainedModel):
         self.feature_embed = nn.Sequential(
             nn.Linear(feature_channels * (visual_embed_config.token_roi_resolution ** 2),  512, bias=False),
             nn.GELU(),
+            nn.Linear(512, 512, bias=False),
+            nn.GELU(),
             nn.Linear(512, self.config.hidden_size, bias=False),
         )
         self.mask_embed = nn.Sequential(
             nn.Linear(visual_embed_config.token_mask_resolution ** 2, 512, bias=False),
+            nn.GELU(),
+            nn.Linear(512, 512, bias=False),
             nn.GELU(),
             nn.Linear(512, self.config.hidden_size, bias=False)
         )

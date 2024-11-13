@@ -65,9 +65,6 @@ def get_run_description(args):
     if args.lora_config is not None:
         description += '-' +  args.lora_config.split('/')[-1].split('.')[0]
     
-    if args.run_comment!='':
-        description += '-' + args.run_comment
-    
     return description
 
 
