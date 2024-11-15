@@ -55,7 +55,7 @@ class SubobjectVLM(PreTrainedModel):
             nn.Linear(512, self.config.hidden_size, bias=False),
         )
         self.mask_embed = nn.Sequential(
-            nn.Linear(visual_embed_config.token_mask_resolution ** 2, 512, bias=False),
+            nn.Linear(visual_embed_config.token_roi_resolution ** 2, 512, bias=False),
             nn.GELU(),
             nn.Linear(512, 512, bias=False),
             nn.GELU(),
@@ -150,7 +150,7 @@ class SubobjectVLM(PreTrainedModel):
 
         boxes, masks, features = self.visual_token_embedding(image, masks)
         # boxes:    (N, M, 4)
-        # masks:    (N, M, token_mask_resolution, token_mask_resolution)
+        # masks:    (N, M, token_roi_resolution, token_roi_resolution)
         # features: (N, M, C * token_roi_resolution * token_roi_resolution)
 
         boxes = boxes.to(self.dtype).to(self.device).detach()

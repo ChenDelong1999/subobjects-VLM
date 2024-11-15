@@ -44,20 +44,20 @@ class VisualTokenEmbedding(torch.nn.Module):
         return self.vision_encoder.device
     
 
-    def forward(self, batch_images, batch_masks):
+    def forward(self, batcmask_resolutions, batch_masks):
         """
         Forward pass of the visual token embedding model.
         Args:
-            batch_images (list): A list of PIL images.
+            batcmask_resolutions (list): A list of PIL images.
             batch_masks (np.ndarray): A numpy array of shape (N, M, H, W) containing binary masks.
 
         Returns:
             roi_boxes  (torch.Tensor): A tensor of shape (N, M, 4) containing the bounding boxes of each mask.
-            roi_masks  (torch.Tensor): A tensor of shape (N, M, token_mask_resolution, token_mask_resolution) containing the cropped masks.
+            roi_masks  (torch.Tensor): A tensor of shape (N, M, token_roi_resolution, token_roi_resolution) containing the cropped masks.
             embeddings (torch.Tensor): A tensor of shape (N, M, channels * token_roi_resolution * token_roi_resolution) containing the visual token embeddings.
         """
         with torch.no_grad():
-            batch_features = self.vision_encoder(batch_images)
+            batch_features = self.vision_encoder(batcmask_resolutions)
 
         # upsample batch_features to output_resolution: 
         # N, C, H, W -> N, C, output_resolution, output_resolution
@@ -73,38 +73,11 @@ class VisualTokenEmbedding(torch.nn.Module):
         return roi_boxes, roi_masks, embeddings
     
 
-    def dialate_masks(self, batch_masks, ratio=100):
-        N, M, H_mask, W_mask = batch_masks.shape
-
-        kernel_size = batch_masks.shape[-1] // ratio
-        kernel_size = int(kernel_size) if int(kernel_size) % 2 == 1 else int(kernel_size) + 1
-
-        if not hasattr(self, 'kernel'):
-            radius = kernel_size // 2
-            y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
-            mask = x**2 + y**2 <= radius**2
-            self.kernel = torch.tensor(mask, dtype=batch_masks.dtype, device=batch_masks.device).unsqueeze(0).unsqueeze(0)
-            self.kernel.requires_grad = False
-
-        padding = kernel_size // 2
-        batch_masks_reshaped = batch_masks.view(N*M, 1, H_mask, W_mask)
-    
-        dilated_masks = F.conv2d(batch_masks_reshaped, self.kernel, padding=padding, stride=1)
-        dilated_masks = dilated_masks.view(N, M, H_mask, W_mask)
-        dilated_masks = (dilated_masks > 0).float()
-
-        return dilated_masks
-    
-
     def mask_roi_pooling(self, batch_features, batch_masks):
 
-        N, C, H_feature, W_feature = batch_features.shape
-        H_image, _ = batch_masks.shape[-2:]
-        M = batch_masks.shape[1]
+        N, C, _mask_resolution, _mask_resolution = batch_features.shape
+        _N, M, mask_resolution, _mask_resolution = batch_masks.shape
         dtype = batch_features.dtype
-
-        # batch_features.shape: torch.Size([4, 3, 512, 512])
-        # batch_masks.shape: torch.Size([4, 256, 512, 512])
 
         # Get ROI boxes for each mask
         roi_boxes = self.get_roi_boxes_from_masks(batch_masks)
@@ -117,32 +90,21 @@ class VisualTokenEmbedding(torch.nn.Module):
             sampling_ratio=1
             ).view(N, M, C, self.config.token_roi_resolution, self.config.token_roi_resolution)
 
-        # Downsample masks to feature map resolution -> (N, M, H, W)
-        batch_masks_feat_scale = F.interpolate(
-            batch_masks, size=(H_feature, W_feature),
-            mode='nearest'
-        )
-        # Dilate masks
-        # batch_masks_feat_scale = self.dialate_masks(batch_masks_feat_scale)
-
         # Perform ROIAlign for masks
         roi_masks = self.crop_roi_masks(
-            batch_masks_feat_scale,
+            batch_masks,
             roi_boxes,
-            self.config.token_mask_resolution
-        ).to(roi_features.device, dtype=roi_features.dtype)
+            self.config.token_roi_resolution
+        ).to(roi_features.device, dtype=roi_features.dtype) 
+        # roi_masks Shape: (N, M, 1, token_roi_resolution, token_roi_resolution)
 
-        roi_masks_in_token_resolution = F.interpolate(
-            roi_masks.squeeze(2),
-            size=(self.config.token_roi_resolution, self.config.token_roi_resolution),
-            mode='nearest'
-        ).unsqueeze(2)
+        # Apply mask to the features, and average pool
+        roi_features = roi_features * roi_masks
+        mask_sum = roi_masks.sum(dim=(-2, -1)).clamp(min=1e-6)  # Shape: (N, M, C)
+        feature_sum = roi_features.sum(dim=(-2, -1))  # Shape: (N, M, C)
+        embeddings = feature_sum / mask_sum  # Shape: (N, M, C)
 
-        # Apply mask to the features and flatten to embeddings
-        roi_features = roi_features * roi_masks_in_token_resolution.repeat(1, 1, C, 1, 1)
-        embeddings = roi_features.view(N, M, -1)
-
-        return torch.stack(roi_boxes) / H_image, roi_masks[:, :, 0], embeddings.to(dtype)
+        return torch.stack(roi_boxes) / mask_resolution, roi_masks[:, :, 0], embeddings.to(dtype)
     
 
     def get_roi_boxes_from_masks(self, batch_masks):
