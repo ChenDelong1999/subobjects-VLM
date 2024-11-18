@@ -53,31 +53,32 @@ def create_textual_tokenizer(tokenizer_path, model_max_length):
 
 
 def create_vlm(
-        llm,
+        model_name_or_checkpoint,
+        llm_class=None,
         visual_embed_config=None,
         embedding_input_resolution=None,
         tokenizer_input_resolution=None,
         lora_config=None,
         model_max_length=None):
 
-    if 'phi' in llm.lower():
+    if llm_class=='phi' or 'phi' in model_name_or_checkpoint.lower():
         modeling_class = PhiforVisionLanguageModeling
-    elif 'gpt2' in llm.lower():
+    elif llm_class=='gpt2' or 'gpt2' in model_name_or_checkpoint.lower():
         modeling_class = GPT2forVisionLanguageModeling
-    elif 'smollm' in llm.lower():
+    elif llm_class=='smollm' or 'smollm' in model_name_or_checkpoint.lower():
         modeling_class = LlamaforVisionLanguageModeling
     else:
         raise NotImplementedError
     
     # load model
-    if llm.endswith('.json'):
-        llm_config = PretrainedConfig.from_json_file(llm)
+    if model_name_or_checkpoint.endswith('.json'):
+        llm_config = PretrainedConfig.from_json_file(model_name_or_checkpoint)
         model = modeling_class(llm_config)
         print(f'Biult randomly initialized LLM from config file: {llm_config}')
     else:
-        model = modeling_class.from_pretrained(llm, torch_dtype=torch.bfloat16, device_map=None)
+        model = modeling_class.from_pretrained(model_name_or_checkpoint, torch_dtype=torch.bfloat16, device_map=None)
         llm_config = model.config
-        print(f'Loded LLM from pretrained: {llm}')
+        print(f'Loded LLM from pretrained: "{model_name_or_checkpoint}"')
     
     if visual_embed_config is not None:
         if type(visual_embed_config) == str and visual_embed_config.endswith('.json'):
@@ -85,7 +86,7 @@ def create_vlm(
         visual_embed_config['output_resolution'] = tokenizer_input_resolution
         visual_embed_config['image_resolution'] = embedding_input_resolution
         visual_embed_config = PretrainedConfig.from_dict(visual_embed_config)
-        print(f'Biulding VLM from config: {visual_embed_config}')
+        print(f'Biulding VLM from config: "{visual_embed_config}"')
         model.init_visual(visual_embed_config)
 
     if lora_config is not None:
@@ -96,7 +97,7 @@ def create_vlm(
     for param in model.visual_token_embedding.vision_encoder.parameters():
         param.requires_grad = False
 
-    tokenizer = create_textual_tokenizer(llm, model_max_length)
+    tokenizer = create_textual_tokenizer(model_name_or_checkpoint, model_max_length)
     model.load_tokenizer_info(tokenizer)
 
     return model, tokenizer

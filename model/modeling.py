@@ -48,18 +48,18 @@ class SubobjectVLM(PreTrainedModel):
 
         self.box_embed = nn.Linear(4, self.config.hidden_size, bias=False)
         self.feature_embed = nn.Sequential(
-            nn.Linear(feature_channels * (visual_embed_config.token_roi_resolution ** 2),  512, bias=False),
+            nn.Linear(feature_channels ,  self.config.hidden_size, bias=False),
             nn.GELU(),
-            nn.Linear(512, 512, bias=False),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
             nn.GELU(),
-            nn.Linear(512, self.config.hidden_size, bias=False),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
         )
         self.mask_embed = nn.Sequential(
-            nn.Linear(visual_embed_config.token_roi_resolution ** 2, 512, bias=False),
+            nn.Linear(visual_embed_config.token_roi_resolution ** 2, self.config.hidden_size, bias=False),
             nn.GELU(),
-            nn.Linear(512, 512, bias=False),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
             nn.GELU(),
-            nn.Linear(512, self.config.hidden_size, bias=False)
+            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False)
         )
         
         if not hasattr(self.config, 'visual_embed_config'):

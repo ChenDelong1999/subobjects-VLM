@@ -1,6 +1,3 @@
-# Training
-  output_dir: 'runs'
-
 # Training Hyperparameters
   training_args:
     logging_steps: 1

@@ -23,7 +23,6 @@ from transformers import Trainer
 from training.utils import (
     load_args_from_yaml,
     get_params_count_summary,
-    get_run_description,
     save_and_print_args,
     set_random_seed
 )
@@ -65,7 +64,7 @@ if __name__ == '__main__':
     parser.add_argument('--lm_loss_weight', type=float, default=1.0)
     parser.add_argument('--insert_queries', action='store_true')
 
-    parser.add_argument('--output_dir', type=str)
+    parser.add_argument('--output_dir', type=str, default=None)
 
     args = parser.parse_args()
     args = load_args_from_yaml(args.trainer_config, args)
@@ -85,7 +84,7 @@ if __name__ == '__main__':
 
     # create model and textualn tokenizer
     model, textual_tokenizer = create_vlm(
-        llm = args.llm, 
+        model_name_or_checkpoint = args.llm, 
         visual_embed_config = args.visual_embed_config,
         embedding_input_resolution=args.embedding_input_resolution,
         tokenizer_input_resolution=args.tokenizer_input_resolution,
@@ -96,9 +95,6 @@ if __name__ == '__main__':
     model.config.vm_loss_weight = args.vm_loss_weight
     model.config.lm_loss_weight = args.lm_loss_weight
     model.config.insert_queries = args.insert_queries
-    
-    # avoid CUDA OOM during evaluation
-    # model.config.keys_to_ignore_at_inference = ['logits', 'past_key_values', 'hidden_states'] 
 
     # create visual and VL tokenizer (data_collector)
     visual_tokenizer = get_visual_tokenizer(
@@ -108,8 +104,12 @@ if __name__ == '__main__':
         device=f'cuda:{args.rank}'
         )
     vl_tokenizer = VisualTextualTokenization(textual_tokenizer, visual_tokenizer)
-
-    args.training_args['output_dir'] = os.path.join(args.output_dir, get_run_description(args))
+    
+    if args.output_dir:
+        args.training_args['output_dir'] = args.output_dir
+        args.training_args['logging_dir'] = args.output_dir
+    else:
+        args.training_args['output_dir'] = 'runs'
     training_args = TrainingArguments(
         **args.training_args,
         per_device_train_batch_size=args.batch_size,
