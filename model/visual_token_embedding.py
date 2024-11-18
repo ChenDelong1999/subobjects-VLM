@@ -43,7 +43,7 @@ class VisualTokenEmbedding(torch.nn.Module):
     def device(self):
         return self.vision_encoder.device
     
-
+    @torch.no_grad()
     def forward(self, batcmask_resolutions, batch_masks):
         """
         Forward pass of the visual token embedding model.

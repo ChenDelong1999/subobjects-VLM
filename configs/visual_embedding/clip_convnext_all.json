@@ -1,0 +1,6 @@
+{
+  "token_roi_resolution": 9,
+  "vision_encoder_type": "timm_backbone",
+  "vision_encoder_name": "convnext_large_mlp.clip_laion2b_soup_ft_in12k_in1k_320/all"
+}
+  
