@@ -2,24 +2,42 @@ cwd: /private/home/delong/workspace/subobjects-VLM
 conda_env_name: subobjects
 conda_path: /private/home/delong/miniconda3
 training_args:
-  epoch: 3
+  epoch: 1
   batch_size: 1
   gradient_accumulation_steps: 32
   dataset: sharegpt4v
   dataset_root: /private/home/delong/workspace/data/ShareGPT4V
-  split: share-captioner_coco_lcs_sam_1246k_1107.json
-  llm: HuggingFaceTB/SmolLM2-1.7B-Instruct
+  split: sharegpt4v_mix665k_cap23k_coco-ap9k_lcs3k_sam9k_div2k.json
+  llm:  microsoft/Phi-3-mini-128k-instruct
   visual_embed_config: configs/visual_embedding/clip_convnext_all.json
-  max_visual_tokens: 16
-  visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep@0.1.json
+  max_visual_tokens: 256
+  visual_tokenizer_config: configs/visual_tokenizer/patch/patch_16_per_side_random.json
   trainer_config: configs/training/sharegpt4v_pt.yaml
-  embedding_input_resolution: 384
-  tokenizer_input_resolution: 384
-  dataloader_num_workers: 8
+  embedding_input_resolution: 768
+  tokenizer_input_resolution: 768
+  dataloader_num_workers: 10
 
-
-  # max_visual_tokens: 81
-  # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_9_per_side_random.json
+# tokenizer
+  # max_visual_tokens: 100
+  # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
   # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_slic.json
   # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep@0.1.json
   # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_101ep@0.5.json
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_101ep@0.2_x2.json
+
+# dataset
+  # dataset: sharegpt4v
+  # dataset_root: /private/home/delong/workspace/data/ShareGPT4V
+  # split: share-captioner_coco_lcs_sam_1246k_1107.json
+  # split: sharegpt4v_instruct_gpt4-vision_cap100k.json
+  # split: sharegpt4v_mix665k_cap23k_coco-ap9k_lcs3k_sam9k_div2k.json
+
+# LLM
+  # llm: HuggingFaceTB/SmolLM2-135M-Instruct
+  # llm: HuggingFaceTB/SmolLM2-350M-Instruct
+  # llm: HuggingFaceTB/SmolLM2-1.7B-Instruct
+  # llm: gpt2
+  # llm: gpt2-medium
+  # llm: gpt2-large
+  # llm: gpt2-xl
+  # llm: microsoft/Phi-3-mini-128k-instruct

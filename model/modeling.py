@@ -214,7 +214,9 @@ class SubobjectVLM(PreTrainedModel):
         if inputs_embeds is None and 'past_key_values' not in kwargs: # for training
             inputs_embeds, labels = self.prepare_inputs_embeds(text, image, masks)
 
-        kwargs['output_hidden_states'] = True
+        if 'phi' in str(self.__class__.__name__).lower():
+            kwargs['num_logits_to_keep'] = 0
+        kwargs['output_hidden_states'] = True # for phi3
         outputs = super().forward(
             inputs_embeds=inputs_embeds, 
             labels=labels['lm_labels'] if labels else None,

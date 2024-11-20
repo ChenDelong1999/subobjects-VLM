@@ -15,7 +15,7 @@ class Trainer:
 
     def create_cmd(self):
         args = " \\\n".join(
-            f"--{key} {value}" for key, value in self.training_args.items()
+            f"--{key} \"{value}\"" for key, value in self.training_args.items()
         )
         cmd = f"""
 source {self.conda_path}/etc/profile.d/conda.sh
@@ -71,8 +71,7 @@ def get_run_output_dir(args):
     description += f"({args['max_visual_tokens']}t-{args['tokenizer_input_resolution']}px)"
     description += '-' + args['visual_embed_config'].split('/')[-1].replace('.json', '').replace('.', '_')
     description += f"({args['embedding_input_resolution']}px)"
-
-    # description += '-' +  args['llm'].split('/')[-1].replace('.', '_')
+    description += '-' +  args['llm'].split('/')[-1].replace('.', '_')
 
     return description
 
@@ -93,7 +92,7 @@ if __name__ == "__main__":
         nodes=1,
         timeout_min=args.timeout,
         slurm_partition=args.partition,
-        slurm_constraint="ampere80gb",
+        constraint='ampere80gb',
     )
 
     # Submit the job
