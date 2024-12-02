@@ -1,0 +1,6 @@
+{
+  "token_roi_resolution": 32,
+  "vision_encoder_type": "timm_backbone",
+  "vision_encoder_name": "tf_mobilenetv3_small_minimal_100.in1k/all"
+}
+  

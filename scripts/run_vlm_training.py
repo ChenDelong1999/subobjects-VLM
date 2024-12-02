@@ -65,13 +65,12 @@ def parse_args():
     
 def get_run_output_dir(args):    
 
-    description = 'runs/' + args['dataset'] + '/'
+    description = 'runs/' + args['dataset'] + '/' + args['llm'].split('/')[-1].replace('.', '_') + '/'
     description += datetime.datetime.now().strftime("%m%d-%H%M")
     description += '-' + args['visual_tokenizer_config'].split('/')[-1].replace('.json', '').replace('.', '_')
     description += f"({args['max_visual_tokens']}t-{args['tokenizer_input_resolution']}px)"
     description += '-' + args['visual_embed_config'].split('/')[-1].replace('.json', '').replace('.', '_')
     description += f"({args['embedding_input_resolution']}px)"
-    description += '-' +  args['llm'].split('/')[-1].replace('.', '_')
 
     return description
 
@@ -92,7 +91,8 @@ if __name__ == "__main__":
         nodes=1,
         timeout_min=args.timeout,
         slurm_partition=args.partition,
-        constraint='ampere80gb',
+        # constraint='ampere80gb',
+        constraint='volta32gb',
     )
 
     # Submit the job

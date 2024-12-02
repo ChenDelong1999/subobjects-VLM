@@ -44,11 +44,11 @@ class VisualTokenEmbedding(torch.nn.Module):
         return self.vision_encoder.device
     
     @torch.no_grad()
-    def forward(self, batcmask_resolutions, batch_masks):
+    def forward(self, images, batch_masks):
         """
         Forward pass of the visual token embedding model.
         Args:
-            batcmask_resolutions (list): A list of PIL images.
+            images (list): A list of PIL images.
             batch_masks (np.ndarray): A numpy array of shape (N, M, H, W) containing binary masks.
 
         Returns:
@@ -57,7 +57,7 @@ class VisualTokenEmbedding(torch.nn.Module):
             embeddings (torch.Tensor): A tensor of shape (N, M, channels * token_roi_resolution * token_roi_resolution) containing the visual token embeddings.
         """
         with torch.no_grad():
-            batch_features = self.vision_encoder(batcmask_resolutions)
+            batch_features = self.vision_encoder(images)
 
         # upsample batch_features to output_resolution: 
         # N, C, H, W -> N, C, output_resolution, output_resolution

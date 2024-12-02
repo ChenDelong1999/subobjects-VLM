@@ -46,20 +46,14 @@ class SubobjectVLM(PreTrainedModel):
         self.visual_token_embedding = VisualTokenEmbedding(visual_embed_config)
         feature_channels = self.visual_token_embedding.vision_encoder.feature_channels
 
-        self.box_embed = nn.Linear(4, self.config.hidden_size, bias=False)
-        self.feature_embed = nn.Sequential(
-            nn.Linear(feature_channels ,  self.config.hidden_size, bias=False),
+        self.visual_projection_mlp_expansion = 4
+
+        self.visual_embed_proj = nn.Sequential(
+            nn.Linear(4 + feature_channels + visual_embed_config.token_roi_resolution ** 2, self.config.hidden_size, bias=False),
             nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size * self.visual_projection_mlp_expansion, bias=False),
             nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
-        )
-        self.mask_embed = nn.Sequential(
-            nn.Linear(visual_embed_config.token_roi_resolution ** 2, self.config.hidden_size, bias=False),
-            nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False),
-            nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size, bias=False)
+            nn.Linear(self.config.hidden_size * self.visual_projection_mlp_expansion, self.config.hidden_size, bias=False),
         )
         
         if not hasattr(self.config, 'visual_embed_config'):
@@ -159,30 +153,36 @@ class SubobjectVLM(PreTrainedModel):
 
         not_padding = (boxes.sum(dim=-1) != 0).unsqueeze(-1)
 
-        box_embeds = self.box_embed(self.boxes_xyxy_to_xywh(boxes)) * not_padding
-        mask_embeds = self.mask_embed(masks.view(masks.shape[0], masks.shape[1], -1)) * not_padding
-        feature_embeds = self.feature_embed(features) * not_padding
+        # box_embeds = self.box_embed(self.boxes_xyxy_to_xywh(boxes)) * not_padding
+        # mask_embeds = self.mask_embed(masks.view(masks.shape[0], masks.shape[1], -1)) * not_padding
+        # feature_embeds = self.feature_embed(features) * not_padding
 
-        return box_embeds, mask_embeds, feature_embeds, features, not_padding.squeeze(-1).sum(dim=-1).cpu().numpy()
+        # concant and project
+        box_embeds = self.boxes_xyxy_to_xywh(boxes)
+        mask_embeds = masks.view(masks.shape[0], masks.shape[1], -1)
+
+        # concat
+        visual_token_embeds = torch.cat((box_embeds, mask_embeds, features), dim=-1)
+        # project
+        visual_token_embeds = self.visual_embed_proj(visual_token_embeds) * not_padding
+
+        return visual_token_embeds, features, not_padding.squeeze(-1).sum(dim=-1).cpu().numpy()
 
 
     def prepare_inputs_embeds(self, input_ids, image, masks):
 
         assert len(input_ids) == len(image) == len(masks); f"Inputs batch size mismatch: {len(input_ids)}, {len(image)}, {len(masks)}"
 
-        box_embeds, mask_embeds, feature_embeds, features, n_visual_tokens = self.prepare_visual_embeds(image, masks)
+        visual_token_embeds, features, n_visual_tokens = self.prepare_visual_embeds(image, masks)
         input_ids, position_idx, content_idx = self.insert_visual_tokens(input_ids, n_visual_tokens)
         inputs_embeds = self.get_input_embeddings()(input_ids)
 
         # add visual embeddings to textual embeddings
         for i in range(len(input_ids)):
             inputs_embeds[i, content_idx[i]] += (
-                box_embeds[i, :n_visual_tokens[i]] +
-                mask_embeds[i, :n_visual_tokens[i]] + 
-                feature_embeds[i, :n_visual_tokens[i]]
-                ).to(self.dtype) 
-            if self.config.insert_queries:
-                inputs_embeds[i, position_idx[i]] += box_embeds[i, :n_visual_tokens[i]].to(self.dtype) 
+                visual_token_embeds[i, :n_visual_tokens[i]]).to(self.dtype) 
+            # if self.config.insert_queries:
+            #     inputs_embeds[i, position_idx[i]] += box_embeds[i, :n_visual_tokens[i]].to(self.dtype) 
         inputs_embeds = inputs_embeds.contiguous()
 
         # labels for textual next token prediction 
@@ -190,7 +190,8 @@ class SubobjectVLM(PreTrainedModel):
         lm_labels[lm_labels == self.token_ids['pad']] = -100
         for i in range(len(input_ids)): 
             # only do next token prediction after the first <|assistant|> token
-            lm_labels[i, : (input_ids[i] == self.token_ids['<|assistant|>']).nonzero()[0].item()+1] = -100
+            if self.token_ids['<|assistant|>'] in input_ids[i]:
+                lm_labels[i, : (input_ids[i] == self.token_ids['<|assistant|>']).nonzero()[0].item()+1] = -100
 
         return inputs_embeds, {
             'lm_labels': lm_labels,

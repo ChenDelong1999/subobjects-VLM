@@ -48,6 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('--trainer_config', type=str, required=True)
     parser.add_argument('--visual_tokenizer_config', type=str, required=True)
     parser.add_argument('--llm', type=str, required=True)
+    parser.add_argument('--freeze_llm', type=bool, default=False)
     parser.add_argument('--lora_config', type=str, default=None)
     parser.add_argument('--visual_embed_config', type=str, required=True)
 
@@ -92,6 +93,12 @@ if __name__ == '__main__':
         model_max_length=model_max_length
         )
 
+    if args.freeze_llm:
+        for param in model.model.parameters():
+            param.requires_grad = False
+        for param in model.model.embed_tokens.parameters():
+            param.requires_grad = True
+            
     model.config.vm_loss_weight = args.vm_loss_weight
     model.config.lm_loss_weight = args.lm_loss_weight
     model.config.insert_queries = args.insert_queries
@@ -137,6 +144,6 @@ if __name__ == '__main__':
     # https://discuss.huggingface.co/t/no-log-for-validation-loss-during-training-with-trainer/40094/2
     trainer.can_return_loss = True 
 
-    trainer.train(resume_from_checkpoint=False)
+    trainer.train()
     print(args)
     

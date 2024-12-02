@@ -89,6 +89,38 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 python -m torch.distributed.run --nproc_per_node=4 
     --dataset image_paragraph_captioning --dataset_root /home/dchenbs/workspace/datasets/VisualGenome \
 ```
 
+### VLM Evaluation
+
+```bash
+# allocate gpu
+srun --gpus-per-node=1 --partition=learnfair --time=4320 --cpus-per-task 10 --mem 60G --pty /bin/zsh -l
+```
+
+
+```zsh
+
+cd /private/home/delong/workspace/subobjects-VLM
+conda activate subobjects
+
+for n in 10; do
+    for split in "sharegpt4v_instruct_gpt4-vision_cap100k.json" "share-captioner_coco_lcs_sam_1246k_1107.json"; do
+        python eval.py \
+        --dataset ShareGPT4V \
+        --dataset_root /private/home/delong/workspace/data/ShareGPT4V \
+        --split ${split} \
+        --num_samples 5000 \
+        --model_checkpoint "runs/sharegpt4v/Phi-3-mini-128k-instruct/1129-1034-patch_${n}_per_side_random(100t-768px)-in1k_mobilenetv3_all(768px)/runs/checkpoint-4870" \
+        --llm_class phi
+    done
+done
+
+```
+
+  --dataset_root /private/home/delong/workspace/data/ShareGPT4V \
+  --split sharegpt4v_instruct_gpt4-vision_cap100k.json \
+  --split share-captioner_coco_lcs_sam_1246k_1107.json \
+
+
 
 ### Holist Evaluation of Image Tokenization
 

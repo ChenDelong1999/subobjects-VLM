@@ -67,6 +67,8 @@ def create_vlm(
         modeling_class = GPT2forVisionLanguageModeling
     elif llm_class=='smollm' or 'smollm' in model_name_or_checkpoint.lower():
         modeling_class = LlamaforVisionLanguageModeling
+    elif llm_class=='llama' or 'llama' in model_name_or_checkpoint.lower():
+        modeling_class = LlamaforVisionLanguageModeling
     else:
         raise NotImplementedError
     
