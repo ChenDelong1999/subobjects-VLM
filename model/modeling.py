@@ -46,14 +46,14 @@ class SubobjectVLM(PreTrainedModel):
         self.visual_token_embedding = VisualTokenEmbedding(visual_embed_config)
         feature_channels = self.visual_token_embedding.vision_encoder.feature_channels
 
-        self.visual_projection_mlp_expansion = 4
+        self.mlp_expansion = 4
 
         self.visual_embed_proj = nn.Sequential(
             nn.Linear(4 + feature_channels + visual_embed_config.token_roi_resolution ** 2, self.config.hidden_size, bias=False),
-            nn.GELU(),
-            nn.Linear(self.config.hidden_size, self.config.hidden_size * self.visual_projection_mlp_expansion, bias=False),
-            nn.GELU(),
-            nn.Linear(self.config.hidden_size * self.visual_projection_mlp_expansion, self.config.hidden_size, bias=False),
+            nn.ReLU(),
+            nn.Linear(self.config.hidden_size, self.config.hidden_size * self.mlp_expansion, bias=False),
+            nn.ReLU(),
+            nn.Linear(self.config.hidden_size * self.mlp_expansion, self.config.hidden_size, bias=False),
         )
         
         if not hasattr(self.config, 'visual_embed_config'):

@@ -8,16 +8,16 @@ training_args:
   dataset: sharegpt4v
   dataset_root: /private/home/delong/workspace/data/ShareGPT4V
   split: share-captioner_coco_lcs_sam_1246k_1107.json
-  llm: microsoft/Phi-3-mini-128k-instruct
-  freeze_llm: True
-  visual_embed_config: configs/visual_embedding/in1k_mobilenetv3_all.json
-  max_visual_tokens: 4
-  visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep@0.1.json
+  llm: HuggingFaceTB/SmolLM2-1.7B-Instruct
+  visual_embed_config: configs/visual_embedding/dinov2_small.json
+  max_visual_tokens: 36
+  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_base.json
   trainer_config: configs/training/sharegpt4v_pt.yaml
   embedding_input_resolution: 768
   tokenizer_input_resolution: 768
   dataloader_num_workers: 8
 
+  # freeze_llm: false
 # tokenizer
   # max_visual_tokens: 100
   # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json

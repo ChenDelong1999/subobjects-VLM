@@ -255,11 +255,11 @@ class DirectSAMTokenizer:
         sorted_indices = np.argsort(areas)[::-1]
         masks = masks[sorted_indices]
 
-        # if there are more than max_tokens masks, merge the small masks
-        if num_objects > self.max_tokens + 1:
-            remaining_masks = masks[self.max_tokens-1:]
-            remaining_masks = np.any(remaining_masks, axis=0)
-            masks[self.max_tokens-1] = remaining_masks
+        # # if there are more than max_tokens masks, merge the small masks
+        # if num_objects > self.max_tokens + 1:
+        #     remaining_masks = masks[self.max_tokens-1:]
+        #     remaining_masks = np.any(remaining_masks, axis=0)
+        #     masks[self.max_tokens-1] = remaining_masks
         return masks[:self.max_tokens]
     
 

@@ -75,8 +75,8 @@ class VisualTokenEmbedding(torch.nn.Module):
 
     def mask_roi_pooling(self, batch_features, batch_masks):
 
-        N, C, _mask_resolution, _mask_resolution = batch_features.shape
-        _N, M, mask_resolution, _mask_resolution = batch_masks.shape
+        N, C, _resolution, _resolution = batch_features.shape
+        _N, M, resolution, _resolution = batch_masks.shape
         dtype = batch_features.dtype
 
         # Get ROI boxes for each mask
@@ -98,13 +98,20 @@ class VisualTokenEmbedding(torch.nn.Module):
         ).to(roi_features.device, dtype=roi_features.dtype) 
         # roi_masks Shape: (N, M, 1, token_roi_resolution, token_roi_resolution)
 
+        embeddings = self.average_pool(roi_features, roi_masks)
+
+        return torch.stack(roi_boxes) / resolution, roi_masks[:, :, 0], embeddings.to(dtype)
+
+
+    def average_pool(self, roi_features, roi_masks):
         # Apply mask to the features, and average pool
         roi_features = roi_features * roi_masks
-        mask_sum = roi_masks.sum(dim=(-2, -1)).clamp(min=1e-6)  # Shape: (N, M, C)
-        feature_sum = roi_features.sum(dim=(-2, -1))  # Shape: (N, M, C)
-        embeddings = feature_sum / mask_sum  # Shape: (N, M, C)
+        mask_sum = roi_masks.sum(dim=(-2, -1)).clamp(min=1e-6)
 
-        return torch.stack(roi_boxes) / mask_resolution, roi_masks[:, :, 0], embeddings.to(dtype)
+        feature_sum = roi_features.sum(dim=(-2, -1))
+        embeddings = feature_sum / mask_sum
+
+        return embeddings
     
 
     def get_roi_boxes_from_masks(self, batch_masks):
