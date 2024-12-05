@@ -4,6 +4,7 @@ from .image_paragraph_captioning import ImageParagraphCaptioning
 from .clevr_caption import CLEVRCaption
 from .sharegpt4v import ShareGPT4V
 from .cambrian import Cambrian
+from .pixmo_cap import PixmoDataset
 
 
 def get_dataset(dataset_name, dataset_root, split='train', max_samples=None):
@@ -26,6 +27,9 @@ def get_dataset(dataset_name, dataset_root, split='train', max_samples=None):
     elif dataset_name == 'cambrian':
         dataset = Cambrian(root=dataset_root, split=split, max_samples=max_samples)
 
+    elif dataset_name == 'pixmo_cap':
+        dataset = PixmoDataset(root=dataset_root, split=split, max_samples=max_samples)
+        
     else:
         raise NotImplementedError
 
