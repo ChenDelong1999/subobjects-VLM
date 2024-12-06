@@ -31,7 +31,7 @@ class PixmoDataset(torch.utils.data.Dataset):
             self.indices = self.indices[:max_samples]
         
         self.total_samples = len(self.indices)
-        # random.shuffle(self.indices)
+        self.max_text_tokens = 300
         
     def __len__(self):
         return self.total_samples
