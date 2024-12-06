@@ -44,7 +44,7 @@ class SuperpixelTokenizer:
         if self.name == 'felzenszwalb':
             return felzenszwalb(image)
         elif self.name == 'slic':
-            return slic(image, start_label=0)
+            return slic(image, start_label=0, n_segments=self.max_tokens)
         elif self.name == 'quickshift':
             return quickshift(image)
 
