@@ -29,6 +29,19 @@ def main():
 
     args = parser.parse_args()
 
+
+    timestamp = datetime.datetime.now().strftime('%m%d-%H%M')
+    eval_output_dir = os.path.dirname(args.model_checkpoint)
+    eval_output_path = os.path.join(eval_output_dir, f'eval_{args.split.split("_")[0]}_{timestamp}.json')
+    # if os.path.exists(eval_output_path):
+    #     print(f"Output file {eval_output_path} already exists. Exiting.")
+    #     return
+
+    for file in os.listdir(eval_output_dir):
+        if file.startswith(f'eval_{args.split.split("_")[0]}') and file.endswith('.json'):
+            print(f"Output file {file} already exists. Exiting.")
+            return 
+
     # Import dataset class based on the provided name
     if args.dataset.lower() == 'sharegpt4v':
         from data import ShareGPT4V
@@ -103,7 +116,6 @@ def main():
     print(f"Average Visual Tokens: {average_visual_tokens}")
 
     # Save the average loss and evaluation arguments to a JSON file
-    timestamp = datetime.datetime.now().strftime('%m%d-%H%M')
     eval_results = {
         'average_loss': average_loss,
         'average_visual_tokens': average_visual_tokens,
@@ -111,8 +123,6 @@ def main():
         'checkpoint_args': checkpoint_args,
     }
 
-    eval_output_dir = os.path.dirname(args.model_checkpoint)
-    eval_output_path = os.path.join(eval_output_dir, f'eval_{args.split.split("_")[0]}_{timestamp}.json')
     with open(eval_output_path, 'w') as f:
         json.dump(eval_results, f, indent=4)
 
