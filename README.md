@@ -97,22 +97,31 @@ srun --gpus-per-node=1 --partition=learnfair --time=4320 --cpus-per-task 10 --me
 ```
 
 
-```zsh
+```python
+import os
+import subprocess
+folder = '/private/home/delong/workspace/subobjects-VLM/runs/sharegpt4v/SmolLM2-1_7B-Instruct'
+checkpoints = os.listdir(folder)
+checkpoints.sort()
+print(len(checkpoints))
 
+for i, checkpoint in enumerate(checkpoints):
+    for split in ["sharegpt4v_instruct_gpt4-vision_cap100k.json", "share-captioner_coco_lcs_sam_1246k_1107.json"]:
+        print(f'>>> Runing {i+1} / {len(checkpoints)} checkpoint: {checkpoint} on {split} split')
+        cmd = f"""
 cd /private/home/delong/workspace/subobjects-VLM
+source /private/home/delong/miniconda3/etc/profile.d/conda.sh
 conda activate subobjects
-
-for n in 10; do
-    for split in "sharegpt4v_instruct_gpt4-vision_cap100k.json" "share-captioner_coco_lcs_sam_1246k_1107.json"; do
-        python eval.py \
-        --dataset ShareGPT4V \
-        --dataset_root /private/home/delong/workspace/data/ShareGPT4V \
-        --split ${split} \
-        --num_samples 5000 \
-        --model_checkpoint "runs/sharegpt4v/Phi-3-mini-128k-instruct/1129-1034-patch_${n}_per_side_random(100t-768px)-in1k_mobilenetv3_all(768px)/runs/checkpoint-4870" \
-        --llm_class phi
-    done
-done
+python eval.py \
+    --dataset ShareGPT4V \
+    --dataset_root /private/home/delong/workspace/data/ShareGPT4V \
+    --split {split} \
+    --num_samples 5000 \
+    --model_checkpoint "{folder}/{checkpoint}/runs/checkpoint-4870" \
+    --llm_class smollm
+"""
+        print(cmd)
+        subprocess.run(cmd, shell=True, executable="/bin/zsh")
 
 ```
 

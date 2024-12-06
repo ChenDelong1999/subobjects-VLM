@@ -91,8 +91,9 @@ if __name__ == "__main__":
         nodes=1,
         timeout_min=args.timeout,
         slurm_partition=args.partition,
-        # constraint='ampere80gb',
-        constraint='volta32gb',
+        # slurm_constraint='ampere80gb',
+        slurm_constraint='volta32gb',
+        slurm_exclude='learnfair6000,learnfair7639,learnfair7645,learnfair7646,learnfair7708,learnfair7711,learnfair7714,learnfair7015,learnfair7713,learnfair7691',
     )
 
     # Submit the job

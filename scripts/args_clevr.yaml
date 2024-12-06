@@ -2,22 +2,26 @@ cwd: /private/home/delong/workspace/subobjects-VLM
 conda_env_name: subobjects
 conda_path: /private/home/delong/miniconda3
 training_args:
-  epoch: 1
-  batch_size: 1
-  gradient_accumulation_steps: 32
-  dataset: sharegpt4v
-  dataset_root: /private/home/delong/workspace/data/ShareGPT4V
-  split: share-captioner_coco_lcs_sam_1246k_1107.json
-  llm: HuggingFaceTB/SmolLM2-1.7B-Instruct
-  visual_embed_config: configs/visual_embedding/dinov2_small.json
-  max_visual_tokens: 36
-  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_base.json
-  trainer_config: configs/training/sharegpt4v_pt.yaml
-  embedding_input_resolution: 768
-  tokenizer_input_resolution: 768
-  dataloader_num_workers: 8
+  epoch: 10
+  batch_size: 8
+  gradient_accumulation_steps: 8
+  llm: HuggingFaceTB/SmolLM2-135M-Instruct
+  dataset: clevr_caption
+  dataset_root: /private/home/delong/workspace/data/clevr-caption
+  split: train
+  visual_embed_config: configs/visual_embedding/vae.json
+  max_visual_tokens: 100
+  visual_tokenizer_config: configs/visual_tokenizer/patch/patch_4_per_side_random.json
+  trainer_config: configs/training/clevr.yaml
+  embedding_input_resolution: 384
+  tokenizer_input_resolution: 384
+  dataloader_num_workers: 16
 
-  # freeze_llm: false
+
+# Visual Embedding
+  # visual_embed_config: configs/visual_embedding/dinov2_small.json
+  # visual_embed_config: configs/visual_embedding/vae.json
+
 # tokenizer
   # max_visual_tokens: 100
   # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
@@ -30,11 +34,15 @@ training_args:
   # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
 
 # dataset
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   # dataset: imagenet
   # dataset_root: /datasets01/imagenet_full_size/061417
   # split: train
 
   # dataset_root: /datasets01/imagenet-22k/062717
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
   # dataset: sharegpt4v
   # dataset_root: /private/home/delong/workspace/data/ShareGPT4V
@@ -42,6 +50,18 @@ training_args:
 
   # split: sharegpt4v_mix665k_cap23k_coco-ap9k_lcs3k_sam9k_div2k.json
   # split: sharegpt4v_instruct_gpt4-vision_cap100k.json
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+  # dataset: clevr_caption
+  # dataset_root: /private/home/delong/workspace/data/clevr-caption
+  # split: train
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+  # dataset: pixmo_cap
+  # dataset_root: /private/home/delong/workspace/data/pixmo-cap
+  # split: train
 
 # LLM
   # llm: HuggingFaceTB/SmolLM2-135M-Instruct
