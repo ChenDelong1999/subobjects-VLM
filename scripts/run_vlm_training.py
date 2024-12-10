@@ -6,12 +6,13 @@ import yaml
 
 
 class Trainer:
-    def __init__(self, output_dir, config):
+    def __init__(self, output_dir, config, seed=42):
         self.cwd = config.get("cwd", "/private/home/delong/workspace/subobjects-VLM")
         self.conda_env_name = config.get("conda_env_name", "subobjects")
         self.conda_path = config.get("conda_path", "/private/home/delong/miniconda3")
         self.output_dir = output_dir
         self.training_args = config.get("training_args", {})
+        self.seed = seed
 
     def create_cmd(self):
         args = " \\\n".join(
@@ -28,7 +29,7 @@ echo "Python version: $(python --version)"
 echo "Using torchrun: $(which torchrun)"
 echo "Conda envs: $(conda env list)"
 
-python -m torch.distributed.run --nproc_per_node=8 train.py --output_dir "{self.output_dir}/runs" {args} 
+python -m torch.distributed.run --nproc_per_node=8 train.py --seed {self.seed} --output_dir "{self.output_dir}/runs" {args} 
         """
         print(cmd)
         return cmd
@@ -59,44 +60,50 @@ def parse_args():
     parser.add_argument(
         "--timeout", type=int, default=4320, help="Timeout in minutes (default: 72 hours)"
     )
+    parser.add_argument(
+        "--seeds", type=int, nargs="+", default=[42], help="Random seeds to use"
+    )
     return parser.parse_args()
 
 
     
-def get_run_output_dir(args):    
+def get_run_output_dir(args, seed):    
 
-    description = 'runs/' + args['dataset'] + '/' + args['llm'].split('/')[-1].replace('.', '_') + '/'
+    description = 'runs/' + args['dataset'] + '/' + args['llm'].split('/')[-1].replace('.', '_') + '/' + args['visual_tokenizer_config'].split('/')[-2] + '/'
     description += datetime.datetime.now().strftime("%m%d-%H%M")
     description += '-' + args['visual_tokenizer_config'].split('/')[-1].replace('.json', '').replace('.', '_')
     description += f"({args['max_visual_tokens']}t-{args['tokenizer_input_resolution']}px)"
     description += '-' + args['visual_embed_config'].split('/')[-1].replace('.json', '').replace('.', '_')
     description += f"({args['embedding_input_resolution']}px)"
+    description += f"-seed={seed}"
 
     return description
 
 if __name__ == "__main__":
     args = parse_args()
 
-    # Load configuration
-    config = load_config(args.config)
-    output_dir = get_run_output_dir(config['training_args'])
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Initialize the executor
-    executor = submitit.AutoExecutor(folder=output_dir)
-    executor.update_parameters(
-        mem_gb=512,
-        gpus_per_node=8,
-        cpus_per_task=80,
-        nodes=1,
-        timeout_min=args.timeout,
-        slurm_partition=args.partition,
-        # slurm_constraint='ampere80gb',
-        slurm_constraint='volta32gb',
-        slurm_exclude='learnfair6000,learnfair7639,learnfair7645,learnfair7646,learnfair7708,learnfair7711,learnfair7714,learnfair7015,learnfair7713,learnfair7691',
-    )
-
     # Submit the job
-    job = executor.submit(Trainer(output_dir, config))
-    print(f"Submitted job with ID: {job.job_id}")
-    print(f'Output directory: {output_dir}')
+    for seed in args.seeds:
+
+        # Load configuration
+        config = load_config(args.config)
+        output_dir = get_run_output_dir(config['training_args'], seed)
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Initialize the executor
+        executor = submitit.AutoExecutor(folder=output_dir)
+        executor.update_parameters(
+            mem_gb=512,
+            gpus_per_node=8,
+            cpus_per_task=80,
+            nodes=1,
+            timeout_min=args.timeout,
+            slurm_partition=args.partition,
+            # slurm_constraint='ampere80gb',
+            slurm_constraint='volta32gb',
+            slurm_exclude='learnfair7716,learnfair7717,learnfair7699,learnfair7698,learnfair7697,learnfair7672,learnfair7643,learnfair7673,learnfair6000,learnfair7639,learnfair7645,learnfair7646,learnfair7708,learnfair7711,learnfair7714,learnfair7015,learnfair7713,learnfair7691,learnfair7654,learnfair7667,learnfair7690,learnfair7666,learnfair7656,learnfair7709,learnfair7715,learnfair7636,learnfair7677,learnfair7678,learnfair7679,learnfair7729,learnfair7731,learnfair7728,learnfair7637',
+        )
+        job = executor.submit(Trainer(output_dir, config, seed))
+        print(f"Submitted job with ID: {job.job_id}")
+        print(f"Seed: {seed}")
+        print(f'Output directory: {output_dir}')
