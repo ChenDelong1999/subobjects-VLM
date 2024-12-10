@@ -1,0 +1,74 @@
+cwd: /private/home/delong/workspace/subobjects-VLM
+conda_env_name: subobjects
+conda_path: /private/home/delong/miniconda3
+training_args:
+  epoch: 10
+  batch_size: 4
+  gradient_accumulation_steps: 8
+  llm: HuggingFaceTB/SmolLM2-360M-Instruct
+  dataset: imagenet
+  dataset_root: /datasets01/imagenet_full_size/061417
+  split: train
+  visual_embed_config: configs/visual_embedding/vae.json
+  max_visual_tokens: 100
+  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_tiny.json
+  trainer_config: configs/training/imagenet.yaml
+  embedding_input_resolution: 384
+  tokenizer_input_resolution: 384
+  dataloader_num_workers: 8
+
+
+# tokenizer
+  # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_slic.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_large_sa1b_2ep@0.1.json
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_sa1b_2ep@0.1.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_large.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_large.json
+
+# dataset
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  # dataset: imagenet
+  # dataset_root: /datasets01/imagenet_full_size/061417
+  # split: train
+
+  # dataset_root: /datasets01/imagenet-22k/062717
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+  # dataset: sharegpt4v
+  # dataset_root: /private/home/delong/workspace/data/ShareGPT4V
+  # split: share-captioner_coco_lcs_sam_1246k_1107.json
+
+  # split: sharegpt4v_mix665k_cap23k_coco-ap9k_lcs3k_sam9k_div2k.json
+  # split: sharegpt4v_instruct_gpt4-vision_cap100k.json
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+  # dataset: clevr_caption
+  # dataset_root: /private/home/delong/workspace/data/clevr-caption
+  # split: train
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+  # dataset: pixmo_cap
+  # dataset_root: /private/home/delong/workspace/data/pixmo-cap
+  # split: train
+
+# LLM
+  # llm: HuggingFaceTB/SmolLM2-135M-Instruct
+  # llm: HuggingFaceTB/SmolLM2-360M-Instruct
+  # llm: HuggingFaceTB/SmolLM2-1.7B-Instruct
+  # llm: gpt2
+  # llm: gpt2-medium
+  # llm: gpt2-large
+  # llm: gpt2-xl
+  # llm: microsoft/Phi-3-mini-128k-instruct
+  # llm: meta-llama/Llama-3.1-8B
