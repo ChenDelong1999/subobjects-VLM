@@ -27,7 +27,6 @@ from training.utils import (
     set_random_seed
 )
 
-set_random_seed()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s | %(message)s')
 
 
@@ -66,9 +65,12 @@ if __name__ == '__main__':
     parser.add_argument('--insert_queries', action='store_true')
 
     parser.add_argument('--output_dir', type=str, default=None)
+    parser.add_argument('--seed', type=int, default=42)
 
     args = parser.parse_args()
     args = load_args_from_yaml(args.trainer_config, args)
+
+    set_random_seed(args.seed)
 
     # get rank
     args.rank = torch.distributed.get_rank()
@@ -124,6 +126,7 @@ if __name__ == '__main__':
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         dataloader_num_workers=args.dataloader_num_workers,
         num_train_epochs=args.epoch,
+        seed=args.seed,
         )
 
     # save and print args
