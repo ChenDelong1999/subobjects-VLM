@@ -52,6 +52,12 @@ def main():
     elif args.dataset.lower() == 'cambrian':
         from data import Cambrian
         DatasetClass = Cambrian
+    elif args.dataset.lower() == 'pixmo_cap':
+        from data import PixmoDataset
+        DatasetClass = PixmoDataset
+    elif args.dataset.lower() == 'clevr_caption':
+        from data import CLEVRCaption
+        DatasetClass = CLEVRCaption
     else:
         raise ValueError(f"Unknown dataset: {args.dataset}")
 
@@ -95,7 +101,7 @@ def main():
     num_na = 0
     total_loss = 0
     total_visual_tokens = 0
-    for _ in tqdm.tqdm(range(num_samples)):
+    for i in tqdm.tqdm(range(num_samples)):
         sample = dataset[random.randint(0, len(dataset) - 1)]
         inputs = vl_tokenizer([sample], eval=True)
 
@@ -109,6 +115,10 @@ def main():
                 num_na += 1
             else:
                 total_loss += loss
+        
+        if i % 100 == 0:
+            print(f"Sample {i}: Loss: {loss}")
+            print(f"Avg Loss: {total_loss / (i + 1)}")
 
     average_loss = total_loss / (num_samples - num_na)
     average_visual_tokens = total_visual_tokens / num_samples

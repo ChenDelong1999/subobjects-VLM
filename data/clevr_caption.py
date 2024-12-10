@@ -31,6 +31,7 @@ class CLEVRCaption(torch.utils.data.Dataset):
         
         return {
             # 'text': f'{self.user_tag} Describe this image: {self.image_tag}{self.end_tag}{self.assistant_tag}{sample["caption"]}{self.end_tag}',
-            'text': f'{self.user_tag} Enumerate all objects and their size, color, material, and shape, from left to right: {self.image_tag}{self.end_tag}{self.assistant_tag}{sample["caption"]}{self.end_tag}',
+            'text': f'{self.user_tag}{self.image_tag}{self.end_tag}{self.assistant_tag}{sample["caption"]}{self.end_tag}',
+            # 'text': f'{self.user_tag} Enumerate all objects and their size, color, material, and shape, from left to right: {self.image_tag}{self.end_tag}{self.assistant_tag}{sample["caption"]}{self.end_tag}',
             'image': Image.open(os.path.join(self.root, sample['img_path'])).convert('RGB')
         }
