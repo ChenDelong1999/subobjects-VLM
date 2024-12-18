@@ -3,20 +3,27 @@ conda_env_name: subobjects
 conda_path: /private/home/delong/miniconda3
 training_args:
   epoch: 30
-  batch_size: 8
-  gradient_accumulation_steps: 16
+  batch_size: 2
+  gradient_accumulation_steps: 32
   llm: HuggingFaceTB/SmolLM2-135M-Instruct
   dataset: clevr_caption
   dataset_root: /private/home/delong/workspace/data/clevr-caption
   split: train
-  visual_embed_config: configs/visual_embedding/vae.json
-  max_visual_tokens: 256
-  visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_large_sa1b_2ep@0.45.json
+  visual_embed_config: configs/visual_embedding/dinov2_small.json
+  max_visual_tokens: 64
+  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
   trainer_config: configs/training/clevr.yaml
   embedding_input_resolution: 384
   tokenizer_input_resolution: 384
   dataloader_num_workers: 8
 
+  # llm: HuggingFaceTB/SmolLM2-135M-Instruct
+  # llm: HuggingFaceTB/SmolLM2-360M-Instruct
+  # llm: HuggingFaceTB/SmolLM2-1.7B-Instruct
+
+
+  # visual_embed_config: configs/visual_embedding/dinov2_small.json
+  # visual_embed_config: configs/visual_embedding/vae.json
 
   # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
 

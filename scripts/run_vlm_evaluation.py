@@ -60,8 +60,8 @@ if __name__ == "__main__":
     # - - - - - - - - - - - - - - - - - - - - 
 
     llm_class = "smollm"
-    folder = "runs/clevr_caption/SmolLM2-135M-Instruct/superpixel"
-    checkpoint_step = 2040
+    folder = "runs/clevr_caption/SmolLM2-360M-Instruct/panoptic"
+    checkpoint_step = 4080
 
     dataset = "clevr_caption"
     dataset_root = "/private/home/delong/workspace/data/clevr-caption"
