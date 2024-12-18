@@ -67,15 +67,18 @@ def parse_args():
 
 
     
-def get_run_output_dir(args, seed):    
+def get_run_output_dir(args, seed):
 
-    description = 'runs/' + args['dataset'] + '/' + args['llm'].split('/')[-1].replace('.', '_') + '/' + args['visual_tokenizer_config'].split('/')[-2] + '/'
+    llm = args['llm'].split('/')[-1].replace('.', '_')
+    visual_embed_config = args['visual_embed_config'].split('/')[-1].replace('.json', '').replace('.', '_') + f"({args['embedding_input_resolution']}px)"
+    visual_tokenizer_config = args['visual_tokenizer_config'].split('/')[-1].replace('.json', '').replace('.', '_')
+    visual_tokenizer_family = args['visual_tokenizer_config'].split('/')[-2]
+
+    description = 'runs/' + args['dataset'] + '/' + llm + '-' + visual_embed_config + '/' + visual_tokenizer_family + '/' 
     description += datetime.datetime.now().strftime("%m%d-%H%M")
-    description += '-' + args['visual_tokenizer_config'].split('/')[-1].replace('.json', '').replace('.', '_')
+    description += '-' + visual_tokenizer_config
     description += f"({args['max_visual_tokens']}t-{args['tokenizer_input_resolution']}px)"
-    description += '-' + args['visual_embed_config'].split('/')[-1].replace('.json', '').replace('.', '_')
-    description += f"({args['embedding_input_resolution']}px)"
-    description += f"-seed={seed}"
+    description += f"-seed={seed}" if seed != 42 else ''
 
     return description
 
