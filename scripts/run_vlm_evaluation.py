@@ -51,7 +51,7 @@ if __name__ == "__main__":
     # - - - - - - - - - - - - - - - - - - - - 
 
     # llm_class = "llama"
-    # folder = '/private/home/delong/workspace/subobjects-VLM/runs/pixmo_cap/Llama-3_2-1B'
+    # folder = '/private/home/delong/workspace/subobjects-VLM/runs/pixmo_cap/Llama-3_2-1B-dinov2_small(768px)/directsam'
     # checkpoint_step = 8283
     
     # dataset = "pixmo_cap"
@@ -60,11 +60,11 @@ if __name__ == "__main__":
     # - - - - - - - - - - - - - - - - - - - - 
 
     llm_class = "smollm"
-    folder = "runs/clevr_caption/SmolLM2-360M-Instruct/panoptic"
-    checkpoint_step = 4080
+    folder = "/private/home/delong/workspace/subobjects-VLM/runs/imagenet/SmolLM2-135M-Instruct-dinov2_small(768px)/directsam"
+    checkpoint_step = 5004
 
-    dataset = "clevr_caption"
-    dataset_root = "/private/home/delong/workspace/data/clevr-caption"
+    dataset = "imagenet"
+    dataset_root = "/datasets01/imagenet_full_size/061417"
 
     # - - - - - - - - - - - - - - - - - - - - 
 

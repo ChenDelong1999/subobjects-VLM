@@ -10,11 +10,11 @@ training_args:
   dataset_root: /private/home/delong/workspace/data/pixmo-cap
   split: train
   visual_embed_config: configs/visual_embedding/dinov2_small.json
-  max_visual_tokens: 256
-  visual_tokenizer_config: configs/visual_tokenizer/patch/patch_15_per_side_random.json
+  max_visual_tokens: 64
+  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
   trainer_config: configs/training/pixmo_cap.yaml
-  embedding_input_resolution: 448
-  tokenizer_input_resolution: 448
+  embedding_input_resolution: 768
+  tokenizer_input_resolution: 768
   dataloader_num_workers: 8
 
 
@@ -23,15 +23,19 @@ training_args:
   # visual_embed_config: configs/visual_embedding/vae.json
 
 # tokenizer
-  # max_visual_tokens: 100
   # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
+
   # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_slic.json
-  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep@0.1.json
-  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_101ep@0.2.json
-  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_101ep@0.2_x2.json
-  
+
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_large_sa1b_2ep@0.1.json
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_sa1b_2ep@0.1.json
+
   # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_large.json
+
   # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_large.json
+
 
 # dataset
 

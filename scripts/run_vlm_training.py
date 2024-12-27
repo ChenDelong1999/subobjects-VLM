@@ -104,7 +104,7 @@ if __name__ == "__main__":
             slurm_partition=args.partition,
             # slurm_constraint='ampere80gb',
             slurm_constraint='volta32gb',
-            slurm_exclude='learnfair7716,learnfair7717,learnfair7699,learnfair7698,learnfair7697,learnfair7672,learnfair7643,learnfair7673,learnfair6000,learnfair7639,learnfair7645,learnfair7646,learnfair7708,learnfair7711,learnfair7714,learnfair7015,learnfair7713,learnfair7691,learnfair7654,learnfair7667,learnfair7690,learnfair7666,learnfair7656,learnfair7709,learnfair7715,learnfair7636,learnfair7677,learnfair7678,learnfair7679,learnfair7729,learnfair7731,learnfair7728,learnfair7637',
+            slurm_exclude='learnfair7570,learnfair7009,learnfair7641,learnfair5103,learnfair5107,learnfair7031,learnfair7563,learnfair7058,learnfair7716,learnfair7717,learnfair7699,learnfair7698,learnfair7697,learnfair7672,learnfair7643,learnfair7673,learnfair6000,learnfair7639,learnfair7645,learnfair7646,learnfair7708,learnfair7711,learnfair7714,learnfair7015,learnfair7713,learnfair7691,learnfair7654,learnfair7667,learnfair7690,learnfair7666,learnfair7656,learnfair7709,learnfair7715,learnfair7636,learnfair7677,learnfair7678,learnfair7679,learnfair7729,learnfair7731,learnfair7728,learnfair7637',
         )
         job = executor.submit(Trainer(output_dir, config, seed))
         print(f"Submitted job with ID: {job.job_id}")
