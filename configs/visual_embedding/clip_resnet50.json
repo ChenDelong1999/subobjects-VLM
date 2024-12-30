@@ -1,6 +1,0 @@
-{
-  "token_roi_resolution": 16,
-  "vision_encoder_type": "timm_backbone",
-  "vision_encoder_name": "resnet50_clip.openai"
-}
-  

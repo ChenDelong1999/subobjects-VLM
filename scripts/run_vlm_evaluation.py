@@ -46,39 +46,40 @@ python eval.py \
 
 if __name__ == "__main__":
     
-    splits = ["train", "val"]
 
     # - - - - - - - - - - - - - - - - - - - - 
 
     # llm_class = "llama"
-    # folder = '/private/home/delong/workspace/subobjects-VLM/runs/pixmo_cap/Llama-3_2-1B-dinov2_small(768px)/directsam'
+    # folder = '/private/home/delong/workspace/subobjects-VLM/runs/pixmo_cap/Llama-3_2-1B-dinov2_small(768px)/patch'
     # checkpoint_step = 8283
     
     # dataset = "pixmo_cap"
     # dataset_root = "/private/home/delong/workspace/data/pixmo-cap"
-
-    # - - - - - - - - - - - - - - - - - - - - 
-
-    llm_class = "smollm"
-    folder = "/private/home/delong/workspace/subobjects-VLM/runs/imagenet/SmolLM2-135M-Instruct-dinov2_small(768px)/directsam"
-    checkpoint_step = 5004
-
-    dataset = "imagenet"
-    dataset_root = "/datasets01/imagenet_full_size/061417"
+    # splits = ["train", "val"]
 
     # - - - - - - - - - - - - - - - - - - - - 
 
     # llm_class = "smollm"
-    # folder = "/private/home/delong/workspace/subobjects-VLM/runs/sharegpt4v/SmolLM2-1_7B-Instruct"
-    # checkpoint_step = 4870
+    # folder = "/private/home/delong/workspace/subobjects-VLM/runs/imagenet/SmolLM2-135M-Instruct-dinov2_small(768px)/directsam"
+    # checkpoint_step = 5004
 
-    # dataset = "sharegpt4v"
-    # dataset_root = "/private/home/delong/workspace/data/ShareGPT4V"
+    # dataset = "imagenet"
+    # dataset_root = "/datasets01/imagenet_full_size/061417"
+    # splits = ["train", "val"]
 
-    # splits = [
-    #     "sharegpt4v_instruct_gpt4-vision_cap100k.json",
-    #     "share-captioner_coco_lcs_sam_1246k_1107.json"
-    # ]
+    # - - - - - - - - - - - - - - - - - - - - 
+
+    llm_class = "llama"
+    folder = "/private/home/delong/workspace/subobjects-VLM/runs/sharegpt4v/Llama-3_2-1B-dinov2_small(768px)/panoptic"
+    checkpoint_step = 4870
+
+    dataset = "sharegpt4v"
+    dataset_root = "/private/home/delong/workspace/data/ShareGPT4V"
+
+    splits = [
+        "sharegpt4v_instruct_gpt4-vision_cap100k.json",
+        "share-captioner_coco_lcs_sam_1246k_1107.json"
+    ]
 
     # - - - - - - - - - - - - - - - - - - - - 
 
@@ -92,6 +93,7 @@ if __name__ == "__main__":
 
             executor = submitit.AutoExecutor(folder=os.path.join(checkpoint_path, 'eval'))
             executor.update_parameters(
+                name=f"subobject_eval-{checkpoint}-{split}",
                 mem_gb=60,
                 gpus_per_node=1,
                 cpus_per_task=10,

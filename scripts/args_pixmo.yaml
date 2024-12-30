@@ -3,15 +3,15 @@ conda_env_name: subobjects
 conda_path: /private/home/delong/miniconda3
 training_args:
   epoch: 3
-  batch_size: 2
-  gradient_accumulation_steps: 16
+  batch_size: 1
+  gradient_accumulation_steps: 32
   llm: meta-llama/Llama-3.2-1B
   dataset: pixmo_cap
   dataset_root: /private/home/delong/workspace/data/pixmo-cap
   split: train
-  visual_embed_config: configs/visual_embedding/dinov2_small.json
-  max_visual_tokens: 64
-  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
+  visual_embed_config: configs/visual_embedding/vae.json
+  max_visual_tokens: 256
+  visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
   trainer_config: configs/training/pixmo_cap.yaml
   embedding_input_resolution: 768
   tokenizer_input_resolution: 768
@@ -21,6 +21,8 @@ training_args:
 # Visual Embedding
   # visual_embed_config: configs/visual_embedding/dinov2_small.json
   # visual_embed_config: configs/visual_embedding/vae.json
+  # visual_embed_config: configs/visual_embedding/clip_vit_b_32.json
+  # visual_embed_config: configs/visual_embedding/clip_vit_l_14_336.json
 
 # tokenizer
   # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json

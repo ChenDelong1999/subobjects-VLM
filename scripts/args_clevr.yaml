@@ -10,8 +10,8 @@ training_args:
   dataset_root: /private/home/delong/workspace/data/clevr-caption
   split: train
   visual_embed_config: configs/visual_embedding/dinov2_small.json
-  max_visual_tokens: 64
-  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
+  max_visual_tokens: 256
+  visual_tokenizer_config: configs/visual_tokenizer/patch/patch_13_per_side_random.json
   trainer_config: configs/training/clevr.yaml
   embedding_input_resolution: 384
   tokenizer_input_resolution: 384

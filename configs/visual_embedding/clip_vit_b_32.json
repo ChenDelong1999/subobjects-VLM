@@ -1,6 +1,6 @@
 {
   "token_roi_resolution": 32,
   "vision_encoder_type": "timm_backbone",
-  "vision_encoder_name": "vit_large_patch14_clip_336.openai"
+  "vision_encoder_name": "vit_base_patch32_clip_224.openai"
 }
   

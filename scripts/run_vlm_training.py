@@ -96,6 +96,7 @@ if __name__ == "__main__":
         # Initialize the executor
         executor = submitit.AutoExecutor(folder=output_dir)
         executor.update_parameters(
+            name=output_dir,
             mem_gb=512,
             gpus_per_node=8,
             cpus_per_task=80,

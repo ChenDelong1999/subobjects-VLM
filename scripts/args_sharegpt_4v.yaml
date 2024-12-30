@@ -2,7 +2,7 @@ cwd: /private/home/delong/workspace/subobjects-VLM
 conda_env_name: subobjects
 conda_path: /private/home/delong/miniconda3
 training_args:
-  epoch: 3
+  epoch: 1
   batch_size: 2
   gradient_accumulation_steps: 16
   llm: meta-llama/Llama-3.2-1B
@@ -10,28 +10,31 @@ training_args:
   dataset_root: /private/home/delong/workspace/data/ShareGPT4V
   split: share-captioner_coco_lcs_sam_1246k_1107.json
   visual_embed_config: configs/visual_embedding/dinov2_small.json
-  max_visual_tokens: 256
-  visual_tokenizer_config: configs/visual_tokenizer/patch/patch_15_per_side_random.json
-  trainer_config: configs/training/pixmo_cap.yaml
-  embedding_input_resolution: 448
-  tokenizer_input_resolution: 448
+  max_visual_tokens: 64
+  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
+  trainer_config: configs/training/sharegpt4v_pt.yaml
+  embedding_input_resolution: 768
+  tokenizer_input_resolution: 768
   dataloader_num_workers: 8
 
 
 # Visual Embedding
   # visual_embed_config: configs/visual_embedding/dinov2_small.json
-  # visual_embed_config: configs/visual_embedding/vae.json
+  # visual_embed_config: configs/visual_embedding/clip_vit_l_14_336.json
 
 # tokenizer
-  # max_visual_tokens: 100
   # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
+
   # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_slic.json
-  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep@0.1.json
-  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_101ep@0.2.json
-  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_dsa_101ep@0.2_x2.json
-  
+
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_large_sa1b_2ep@0.1.json
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_sa1b_2ep@0.1.json
+
   # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_large.json
+
   # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_large.json
 
   # dataset: sharegpt4v
   # dataset_root: /private/home/delong/workspace/data/ShareGPT4V
