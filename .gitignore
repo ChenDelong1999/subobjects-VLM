@@ -109,4 +109,4 @@ cython_debug/
 
 runs/
 visual_tokenizer/weights_cache
-HEIT/outputs
+evaluation_intrinsic/outputs

@@ -35,15 +35,6 @@ python eval.py \
         print(f"Running evaluation for checkpoint: {self.checkpoint}, split: {self.split}")
         subprocess.run(cmd, shell=True, check=True, executable="/bin/zsh")
 
-"""
-
-    --dataset ShareGPT4V \
-    --dataset_root /private/home/delong/workspace/data/ShareGPT4V \
-    --dataset pixmo_cap \
-    --dataset_root /private/home/delong/workspace/data/pixmo-cap \
-
-"""
-
 if __name__ == "__main__":
     
 
