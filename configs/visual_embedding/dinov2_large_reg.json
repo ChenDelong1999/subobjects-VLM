@@ -1,0 +1,6 @@
+{
+  "token_roi_resolution": 32,
+  "vision_encoder_type": "timm_backbone",
+  "vision_encoder_name": "vit_large_patch14_reg4_dinov2.lvd142m"
+}
+  

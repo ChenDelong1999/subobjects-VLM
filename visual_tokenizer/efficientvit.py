@@ -7,7 +7,7 @@ from PIL import Image
 from .sam import sam_post_processing  # Assuming sam_post_processing is defined in sam.py within the same package
 
 import sys
-sys.path.append(f'visual_tokenizer/efficientvit')
+sys.path.append(f'/private/home/delong/workspace/subobjects-VLM/visual_tokenizer/efficientvit')
 # Import necessary modules from EfficientViT
 from efficientvit.sam_model_zoo import create_sam_model
 from demo.sam.helpers.auto_mask_generator import DemoEfficientViTSamAutomaticMaskGenerator

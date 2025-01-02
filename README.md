@@ -138,13 +138,13 @@ python eval.py \
 # single debug run
 
 conda activate subobjects
-cd /private/home/delong/workspace/subobjects-VLM/HEIT
+cd /private/home/delong/workspace/subobjects-VLM/evaluation_intrinsic
 
-CUDA_VISIBLE_DEVICES=0 python heit_inference.py \
-    --split "COCONut_relabeld_COCO_val" \
-    --tokenizer_config ../configs/visual_tokenizer/directsam/directsam_tiny_dsa_100ep.json \
-    --input_resolution 1024 \
-    --output_dir outputs/tokenized_HEIT
+CUDA_VISIBLE_DEVICES=0 python segmentation.py \
+    --split "SA1B" \
+    --tokenizer_config ../configs/visual_tokenizer/directsam/directsam_tiny_sa1b_2ep@0.25.json \
+    --input_resolution 768 \
+    --output_dir outputs/segmentation
 
 ```
 
@@ -158,3 +158,10 @@ python scripts/run_heit_inference.py
 
 ```
 
+compute metrics
+
+```
+conda activate subobjects
+cd /private/home/delong/workspace/subobjects-VLM/evaluation_intrinsic
+python compute_metrics.py
+```
