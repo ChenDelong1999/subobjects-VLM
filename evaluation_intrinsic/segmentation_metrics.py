@@ -216,10 +216,10 @@ def main():
 
         # If no predicted masks => single empty mask
         if len(sample_pred.get("rles", [])) == 0:
-            masks_pred = torch.zeros((1, args.resolution, args.resolution), device=args.device)
+            masks_pred = torch.zeros((1, args.resolution, args.resolution), device=args.device, dtype=torch.bool)
         else:
             masks = decode_masks(sample_pred["rles"])
-            masks_pred = torch.tensor(masks, device=args.device)
+            masks_pred = torch.tensor(masks, device=args.device, dtype=torch.bool)
 
         # Convert to label map
         label_map_pred = masks_to_label_map(

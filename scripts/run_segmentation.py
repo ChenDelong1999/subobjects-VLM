@@ -63,39 +63,41 @@ if __name__ == "__main__":
         # "SA1B", 
         # "COCONut_relabeld_COCO_val", 
         # "PascalPanopticParts", 
-        "ADE20k"
+        # "ADE20k",
+        "EgoHOS"
     ]
     resolutions = [
-        # 384, 
-        # 768, 
+        384, 
+        768, 
         1024, 
-        # 1500
+        1500
         ]
 
     tokenizer_configs = []
 
     tokenizer_configs += [
-        # "panoptic/panoptic_mask2former_tiny.json",
-        # "panoptic/panoptic_mask2former_small.json",
-        # "panoptic/panoptic_mask2former_base.json",
-        # "panoptic/panoptic_mask2former_large.json",
-        # "panoptic/panoptic_oneformer_tiny.json",
-        # "panoptic/panoptic_oneformer_large.json",
-        # "sam/fastsam.json",       # using ultralytics==8.0.120 
+    #     "panoptic/panoptic_mask2former_tiny.json",
+    #     "panoptic/panoptic_mask2former_small.json",
+    #     "panoptic/panoptic_mask2former_base.json",
+    #     "panoptic/panoptic_mask2former_large.json",
+    #     "panoptic/panoptic_oneformer_tiny.json",
+    #     "panoptic/panoptic_oneformer_large.json",
+    #     "panoptic/panoptic_mask2former_large_ade.json",
+    #     "panoptic/panoptic_oneformer_large_coco.json",
+    #     "sam/fastsam.json",       # using ultralytics==8.0.120 
         "sam/mobilesamv2.json",     # using its own ultralytics
-        # "sam/sam_vit_b.json",
-        # "sam/sam_vit_l.json",
-        # "sam/sam_vit_h.json",
-        # "sam/sam_vit_h_48points.json",
-        # "sam/sam_vit_h_64points.json",
-        # "sam/sam_vit_h_64points_1layer.json",
+    #     "sam/sam_vit_b.json",
+    #     "sam/sam_vit_l.json",
+    #     "sam/sam_vit_h.json",
+    #     "sam/sam_vit_h_48points.json",
+    #     "sam/sam_vit_h_64points.json",
+    #     "sam/sam_vit_h_64points_1layer.json",
     ]
 
     # for patch_per_side in range(2, 32):
     #     tokenizer_configs.append(f"patch/patch_{patch_per_side}_per_side_raster.json")
 
-    # for superpixel_max_tokens in [100]:
-    # # for superpixel_max_tokens in [4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256]:
+    # for superpixel_max_tokens in [4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256]:
     #     tokenizer_configs.append(f"superpixel/superpixel_slic.json|{superpixel_max_tokens}")
 
     # for size in ['tiny', 'large']:

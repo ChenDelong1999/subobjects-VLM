@@ -38,14 +38,19 @@ python eval.py \
 if __name__ == "__main__":
 
 
-    tokenizer_families = ['patch', 'panoptic', 'directsam', 'superpixel']
+    tokenizer_families = [
+        'patch', 
+        'panoptic', 
+        'directsam', 
+        'superpixel'
+        ]
     
 
     # - - - - - - - - - - - - - - - - - - - - 
 
     # llm_class = "smollm"
-    # folder = "/private/home/delong/workspace/subobjects-VLM/runs/clevr_caption/SmolLM2-135M-Instruct-dinov2_small(384px)"
-    # # folder = "/private/home/delong/workspace/subobjects-VLM/runs/clevr_caption/SmolLM2-135M-Instruct-vae(384px)"
+    # # folder = "/private/home/delong/workspace/subobjects-VLM/runs/clevr_caption/SmolLM2-135M-Instruct-dinov2_small(384px)"
+    # folder = "/private/home/delong/workspace/subobjects-VLM/runs/clevr_caption/SmolLM2-135M-Instruct-vae(384px)"
     # checkpoint_step = 4080
 
     # dataset = "clevr_caption"
@@ -64,27 +69,27 @@ if __name__ == "__main__":
 
     # - - - - - - - - - - - - - - - - - - - - 
 
-    llm_class = "llama"
-    folder = '/private/home/delong/workspace/subobjects-VLM/runs/pixmo_cap/Llama-3_2-1B-dinov2_small(768px)'
-    checkpoint_step = 8283
+    # llm_class = "llama"
+    # folder = '/private/home/delong/workspace/subobjects-VLM/runs/pixmo_cap/Llama-3_2-1B-dinov2_small(768px)'
+    # checkpoint_step = 8283
     
-    dataset = "pixmo_cap"
-    dataset_root = "/private/home/delong/workspace/data/pixmo-cap"
-    splits = ["train", "val"]
+    # dataset = "pixmo_cap"
+    # dataset_root = "/private/home/delong/workspace/data/pixmo-cap"
+    # splits = ["train", "val"]
 
     # - - - - - - - - - - - - - - - - - - - - 
 
-    # llm_class = "llama"
-    # folder = "/private/home/delong/workspace/subobjects-VLM/runs/sharegpt4v/Llama-3_2-1B-dinov2_small(768px)"
-    # checkpoint_step = 4870
+    llm_class = "llama"
+    folder = "/private/home/delong/workspace/subobjects-VLM/runs/sharegpt4v/Llama-3_2-1B-dinov2_small(768px)"
+    checkpoint_step = 4870
 
-    # dataset = "sharegpt4v"
-    # dataset_root = "/private/home/delong/workspace/data/ShareGPT4V"
+    dataset = "sharegpt4v"
+    dataset_root = "/private/home/delong/workspace/data/ShareGPT4V"
 
-    # splits = [
-    #     "sharegpt4v_instruct_gpt4-vision_cap100k.json",
-    #     "share-captioner_coco_lcs_sam_1246k_1107.json"
-    # ]
+    splits = [
+        "sharegpt4v_instruct_gpt4-vision_cap100k.json",
+        "share-captioner_coco_lcs_sam_1246k_1107.json"
+    ]
 
     # - - - - - - - - - - - - - - - - - - - - 
     for tokenizer_family in tokenizer_families:
@@ -97,9 +102,16 @@ if __name__ == "__main__":
                 continue
             for split in splits:
 
+                # if not (split == "val" and checkpoint in [
+                #     "1224-1558-superpixel_slic(25t-768px)",
+                #     "1224-1558-superpixel_slic(49t-768px)",
+                #     "1224-1558-superpixel_slic(36t-768px)",
+                #     ]):
+                #     continue
+
                 executor = submitit.AutoExecutor(folder=os.path.join(checkpoint_path, 'vlm_eval'))
                 executor.update_parameters(
-                    name=f"vlm_eval{dataset}-{folder.split('/')[-1]}-{checkpoint}-{split}",
+                    name=f"vlm_eval_{dataset}-{folder.split('/')[-1]}-{checkpoint}-{split}",
                     mem_gb=60,
                     gpus_per_node=1,
                     cpus_per_task=10,

@@ -59,18 +59,20 @@ if __name__ == "__main__":
     
     splits = [
         "ADE20k",
-        # "SA1B",
-        # "COCONut_relabeld_COCO_val",
+        "SA1B",
+        "COCONut_relabeld_COCO_val",
         "PascalPanopticParts",
+        "EgoHOS",
     ]
     resolutions = [
-        # 384,
+        384,
         768,
-        # 1024,
-        # 1500,
+        1024,
+        1500,
     ]
 
     log_folder_root = "evaluation_intrinsic/outputs/segmentation_metrics_logs"
+    output_root = "evaluation_intrinsic/outputs/segmentation_metrics_0102"
     os.makedirs(log_folder_root, exist_ok=True)
 
     for split in splits:
@@ -80,6 +82,11 @@ if __name__ == "__main__":
                 job_name = f"segmentation_metrics_{split}_{res}_{model_name}"
                 log_folder = os.path.join(log_folder_root, split, str(res), model_name)
                 os.makedirs(log_folder, exist_ok=True)
+
+                output_file = os.path.join(output_root, split, str(res), model_name+'.json')
+                if os.path.exists(output_file):
+                    print(f"\tSkipping {job_name} as output already exists")
+                    continue
 
                 executor = submitit.AutoExecutor(folder=log_folder)
                 executor.update_parameters(
@@ -96,9 +103,6 @@ if __name__ == "__main__":
 
                 # Create the job object
                 job = executor.submit(MetricsComputer(split, res, model_name))
-                print(f"Submitted job {job.job_id} for split={split}, resolution={res}, model_name={model_name}")
-                print(f"Log file: {log_folder}")
-
-        #         break 
-        #     break 
-        # break
+                print(f"Submitted job {job.job_id}")
+                print(f"split={split}, resolution={res}, model_name={model_name}")
+                print(f"Log file: {log_folder}\n")

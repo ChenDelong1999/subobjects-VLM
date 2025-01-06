@@ -1,0 +1,4 @@
+{
+    "type": "panoptic",
+    "name": "facebook/mask2former-swin-large-ade-panoptic"
+}
