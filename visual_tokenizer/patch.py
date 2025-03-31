@@ -19,7 +19,7 @@ class PatchTokenizer:
         self.masks = self._prepare_masks()
         
     def _prepare_masks(self):
-        masks = np.zeros((self.max_tokens, self.image_resolution, self.image_resolution), dtype=bool)
+        masks = np.zeros((self.num_patches, self.image_resolution, self.image_resolution), dtype=bool)
         
         for i in range(self.patch_per_side):
             for j in range(self.patch_per_side):
@@ -28,7 +28,7 @@ class PatchTokenizer:
                       i*self.patch_size:(i+1)*self.patch_size, 
                       j*self.patch_size:(j+1)*self.patch_size] = True
         
-        return masks[:self.max_tokens]
+        return masks
     
     def __call__(self, images):
         if not isinstance(images, list):
@@ -43,5 +43,8 @@ class PatchTokenizer:
         if self.order == 'random':
             for i in range(batch_size):
                 np.random.shuffle(batch_masks[i])
+
+        # truncate to max_tokens
+        batch_masks = batch_masks[:, :self.max_tokens, :, :]
         
         return torch.tensor(batch_masks.astype(bool))

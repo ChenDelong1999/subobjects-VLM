@@ -60,48 +60,59 @@ if __name__ == "__main__":
     config_root = "/private/home/delong/workspace/subobjects-VLM/configs/visual_tokenizer"
 
     splits = [
-        # "SA1B", 
-        # "COCONut_relabeld_COCO_val", 
-        # "PascalPanopticParts", 
-        # "ADE20k",
-        "EgoHOS"
+        "SA1B", 
+        "COCONut_relabeld_COCO_val", 
+        "PascalPanopticParts", 
+        "ADE20k",
+        "EgoHOS",
+        "PartImageNetPP"
     ]
     resolutions = [
-        384, 
+        # 384, 
         768, 
-        1024, 
-        1500
+        # 1024, 
+        # 1500
         ]
 
     tokenizer_configs = []
 
     tokenizer_configs += [
-    #     "panoptic/panoptic_mask2former_tiny.json",
-    #     "panoptic/panoptic_mask2former_small.json",
-    #     "panoptic/panoptic_mask2former_base.json",
-    #     "panoptic/panoptic_mask2former_large.json",
-    #     "panoptic/panoptic_oneformer_tiny.json",
-    #     "panoptic/panoptic_oneformer_large.json",
-    #     "panoptic/panoptic_mask2former_large_ade.json",
-    #     "panoptic/panoptic_oneformer_large_coco.json",
-    #     "sam/fastsam.json",       # using ultralytics==8.0.120 
-        "sam/mobilesamv2.json",     # using its own ultralytics
-    #     "sam/sam_vit_b.json",
-    #     "sam/sam_vit_l.json",
-    #     "sam/sam_vit_h.json",
-    #     "sam/sam_vit_h_48points.json",
-    #     "sam/sam_vit_h_64points.json",
-    #     "sam/sam_vit_h_64points_1layer.json",
+        # "panoptic/panoptic_mask2former_tiny.json",
+        # "panoptic/panoptic_mask2former_small.json",
+        # "panoptic/panoptic_mask2former_base.json",
+        # "panoptic/panoptic_mask2former_large.json",
+        # "panoptic/panoptic_oneformer_tiny.json",
+        # "panoptic/panoptic_oneformer_large.json",
+        # "panoptic/panoptic_mask2former_large_ade.json",
+        # "panoptic/panoptic_oneformer_large_coco.json",
+        # "sam/fastsam.json",       # using ultralytics==8.0.120 
+        # "sam/mobilesamv2.json",     # using its own ultralytics
+        "sam/sam_vit_b_8points.json",
+        "sam/sam_vit_b_16points.json",
+        "sam/sam_vit_b_24points.json",
+        "sam/sam_vit_b_32points.json",
+        # "sam/sam_vit_b.json",
+        # "sam/sam_vit_l.json",
+        # "sam/sam_vit_h.json",
+        # "sam/sam_vit_h_48points.json",
+        # "sam/sam_vit_h_64points.json",
+        # "sam/sam_vit_h_64points_1layer.json",
+        # "patch/patch_32_per_side_raster.json"
     ]
 
-    # for patch_per_side in range(2, 32):
+    # for patch_per_side in range(2, 33):
     #     tokenizer_configs.append(f"patch/patch_{patch_per_side}_per_side_raster.json")
 
     # for superpixel_max_tokens in [4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256]:
     #     tokenizer_configs.append(f"superpixel/superpixel_slic.json|{superpixel_max_tokens}")
 
-    # for size in ['tiny', 'large']:
-    #     for directsam_threshold in [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]:
+    # for scale in ['0.1', '0.5', '1', '2', '3', '4', '5']:
+    #     tokenizer_configs.append(f"superpixel/superpixel_felzenszwalb@{scale}k.json")
+
+    # for size in ['tiny']:
+    #     for directsam_threshold in [0.6]:
+    #     # for directsam_threshold in [0.01, 0.6, 0.7, 0.8, 0.9]:
+    #     # for directsam_threshold in [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]:
     #         tokenizer_configs.append(f"directsam/directsam_{size}_sa1b_2ep@{directsam_threshold}.json")
 
     print(f'splits: {splits}')
@@ -118,24 +129,27 @@ if __name__ == "__main__":
                 log_folder = f"/private/home/delong/workspace/subobjects-VLM/evaluation_intrinsic/outputs/segmentation_logs/{split}/{res}/{os.path.basename(tok_cfg).replace('.json', '')}"
                 os.makedirs(log_folder, exist_ok=True)
 
+                cpu_only = 'patch' in tok_cfg or 'superpixel' in tok_cfg
                 tok_cfg = os.path.join(config_root, tok_cfg)
-                # Set up an AutoExecutor
+
+                
                 executor = submitit.AutoExecutor(folder=log_folder)
                 executor.update_parameters(
                     name=f"segmentation-{split}-{res}-{os.path.basename(tok_cfg)}",
                     mem_gb=60,
-                    gpus_per_node=int('patch' not in tok_cfg),
+                    gpus_per_node=0 if cpu_only else 1,
                     cpus_per_task=10,
                     nodes=1,
                     timeout_min=4320,
                     slurm_partition="learnfair",
-                    slurm_constraint="volta32gb",
-                    slurm_exclude='learnfair7570,learnfair7009,learnfair7641,learnfair5103,learnfair5107,learnfair7031,learnfair7563,learnfair7058,learnfair7716,learnfair7717,learnfair7699,learnfair7698,learnfair7697,learnfair7672,learnfair7643,learnfair7673,learnfair6000,learnfair7639,learnfair7645,learnfair7646,learnfair7708,learnfair7711,learnfair7714,learnfair7015,learnfair7713,learnfair7691,learnfair7654,learnfair7667,learnfair7690,learnfair7666,learnfair7656,learnfair7709,learnfair7715,learnfair7636,learnfair7677,learnfair7678,learnfair7679,learnfair7729,learnfair7731,learnfair7728,learnfair7637',
+                    slurm_constraint=None if cpu_only else "volta32gb", 
+                    slurm_exclude=None if cpu_only else 'learnfair7570,learnfair7009,learnfair7641,learnfair5103,learnfair5107,learnfair7031,learnfair7563,learnfair7058,learnfair7716,learnfair7717,learnfair7699,learnfair7698,learnfair7697,learnfair7672,learnfair7643,learnfair7673,learnfair6000,learnfair7639,learnfair7645,learnfair7646,learnfair7708,learnfair7711,learnfair7714,learnfair7015,learnfair7713,learnfair7691,learnfair7654,learnfair7667,learnfair7690,learnfair7666,learnfair7656,learnfair7709,learnfair7715,learnfair7636,learnfair7677,learnfair7678,learnfair7679,learnfair7729,learnfair7731,learnfair7728,learnfair7637',
 
                 )
 
                 job = executor.submit(Segmenter(split, res, tok_cfg))
-                print(f"Submitted job {job.job_id}: split={split}, res={res}, tokenizer={os.path.basename(tok_cfg)}")
+                print(f"Submitted job {job.job_id})")
+                print(f"split={split}, res={res}, tokenizer={os.path.basename(tok_cfg)}, cpu_only: {cpu_only}")
 
         #         break
         #     break

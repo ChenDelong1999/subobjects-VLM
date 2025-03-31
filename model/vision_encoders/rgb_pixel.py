@@ -11,12 +11,17 @@ class RGBPixel():
         self.feature_channels = 3
         # self.feature_resolution = image_resolution
 
+        self.model_name = model_name
+
         self.dtype = torch.float32
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     def __call__(self, images):
         pixel_values = [self.preprocess(image.convert('RGB')) for image in images]
         pixel_values = torch.stack(pixel_values).to(self.device).to(self.dtype)
+
+        if self.model_name=='zero_pixel':
+            pixel_values *= 0
         return pixel_values
     
     def eval(self):

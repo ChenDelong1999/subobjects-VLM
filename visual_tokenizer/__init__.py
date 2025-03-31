@@ -1,4 +1,4 @@
-
+# visual_tokenizer/__init__.py
 
 def get_visual_tokenizer(**kwargs):
     if kwargs['type'] == 'patch':

@@ -1,3 +1,4 @@
+# sam.py
 import os
 import numpy as np
 import torch
@@ -61,6 +62,20 @@ class SAMTokenizer:
                 masks = sam_post_processing(masks)
             else:
                 masks = np.zeros((1, self.image_resolution, self.image_resolution), dtype=bool)
+
+
+            # import matplotlib.pyplot as plt
+            # for n in range(len(masks)):
+            #     mask = masks[n]
+            #     mask_indices = np.where(mask)
+            #     color = np.mean(np.array(img)[mask_indices], axis=0)
+
+            #     canvas = np.ones_like(images[i]) * 255
+            #     canvas[mask_indices] = color
+
+            #     plt.imshow(canvas)
+            #     plt.axis('off')
+            #     plt.show()
 
             batch_masks[i, :len(masks)] = masks[:self.max_tokens]
 

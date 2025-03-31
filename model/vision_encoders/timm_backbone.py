@@ -19,11 +19,15 @@ class TimmBackbone(nn.Module):
         self.model = timm.create_model(base_model, features_only=True, pretrained=True)
 
         # Determine stages
-        if not stages_str or stages_str == 'all':
+        if not stages_str:
+            self.stages = [-1]
+        elif stages_str == 'all':
             self.stages = list(range(len(self.model.feature_info.channels())))
         else:
             stages = re.findall(r'\d+', stages_str)
             self.stages = sorted(map(int, stages))
+
+        print(f'Using feature stages: {self.stages}')
 
         # Adjust image resolution for specific models
         if model_name == 'vit_large_patch14_clip_336.openai':

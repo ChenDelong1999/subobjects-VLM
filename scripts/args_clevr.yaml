@@ -9,9 +9,9 @@ training_args:
   dataset: clevr_caption
   dataset_root: /private/home/delong/workspace/data/clevr-caption
   split: train
-  visual_embed_config: configs/visual_embedding/vae.json
-  max_visual_tokens: 225
-  visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_slic.json
+  visual_embed_config: configs/visual_embedding/dinov2_small.json
+  max_visual_tokens: 256
+  visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_felzenszwalb@5k.json
   trainer_config: configs/training/clevr.yaml
   embedding_input_resolution: 384
   tokenizer_input_resolution: 384
@@ -27,6 +27,7 @@ training_args:
 
   # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
 
+  # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_felzenszwalb@0.1k.json
   # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_slic.json
 
   # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_large_sa1b_2ep@0.1.json
@@ -37,3 +38,4 @@ training_args:
 
   # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
   # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_large.json
+

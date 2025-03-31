@@ -2,6 +2,7 @@
 import os
 import submitit
 import subprocess
+import time
 
 class MetricsComputer:
     def __init__(self, split, resolution, model_name):
@@ -63,17 +64,20 @@ if __name__ == "__main__":
         "COCONut_relabeld_COCO_val",
         "PascalPanopticParts",
         "EgoHOS",
+        "PartImageNetPP"
     ]
     resolutions = [
-        384,
+        # 384,
         768,
-        1024,
-        1500,
+        # 1024,
+        # 1500,
     ]
 
     log_folder_root = "evaluation_intrinsic/outputs/segmentation_metrics_logs"
     output_root = "evaluation_intrinsic/outputs/segmentation_metrics_0102"
     os.makedirs(log_folder_root, exist_ok=True)
+
+    n_jobs = 0
 
     for split in splits:
         for res in resolutions:
@@ -85,7 +89,7 @@ if __name__ == "__main__":
 
                 output_file = os.path.join(output_root, split, str(res), model_name+'.json')
                 if os.path.exists(output_file):
-                    print(f"\tSkipping {job_name} as output already exists")
+                    # print(f"\tSkipping {job_name} as output already exists")
                     continue
 
                 executor = submitit.AutoExecutor(folder=log_folder)
@@ -98,11 +102,17 @@ if __name__ == "__main__":
                     timeout_min=4320,
                     slurm_partition="learnfair",
                     slurm_constraint="volta32gb",
+                    # slurm_constraint="ampere80gb",
                     slurm_exclude='learnfair7570,learnfair7009,learnfair7641,learnfair5103,learnfair5107,learnfair7031,learnfair7563,learnfair7058,learnfair7716,learnfair7717,learnfair7699,learnfair7698,learnfair7697,learnfair7672,learnfair7643,learnfair7673,learnfair6000,learnfair7639,learnfair7645,learnfair7646,learnfair7708,learnfair7711,learnfair7714,learnfair7015,learnfair7713,learnfair7691,learnfair7654,learnfair7667,learnfair7690,learnfair7666,learnfair7656,learnfair7709,learnfair7715,learnfair7636,learnfair7677,learnfair7678,learnfair7679,learnfair7729,learnfair7731,learnfair7728,learnfair7637',
                 )
 
                 # Create the job object
                 job = executor.submit(MetricsComputer(split, res, model_name))
                 print(f"Submitted job {job.job_id}")
+
                 print(f"split={split}, resolution={res}, model_name={model_name}")
                 print(f"Log file: {log_folder}\n")
+                n_jobs += 1
+                # time.sleep(3)
+
+    print(f"Submitted {n_jobs} jobs")

@@ -1,0 +1,5 @@
+{
+    "type": "superpixel",
+    "name": "felzenszwalb",
+    "scale": 4000
+}

@@ -1,0 +1,87 @@
+cwd: /private/home/delong/workspace/subobjects-VLM
+conda_env_name: subobjects
+conda_path: /private/home/delong/miniconda3
+training_args:
+  epoch: 30
+  batch_size: 2
+  gradient_accumulation_steps: 32
+  llm: HuggingFaceTB/SmolLM2-135M-Instruct
+  dataset: clevr_caption
+  dataset_root: /private/home/delong/workspace/data/clevr-caption
+  split: train
+  visual_embed_config: configs/visual_embedding/dinov2_small.json
+  max_visual_tokens: 5
+  visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_tiny.json
+  trainer_config: configs/training/clevr.yaml
+  embedding_input_resolution: 768
+  tokenizer_input_resolution: 768
+  dataloader_num_workers: 8
+
+
+# 32
+# 48
+# 64
+# 128
+# 256
+# 384
+# 512
+# 768
+# 1024
+
+
+# tokenizer
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
+  # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_slic.json
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_sa1b_2ep@0.1.json
+  
+  
+# Visual Embedding
+  # visual_embed_config: configs/visual_embedding/dinov2_small.json
+  # visual_embed_config: configs/visual_embedding/dinov2_small_reg.json
+
+  # visual_embed_config: configs/visual_embedding/dinov2_base.json
+  # visual_embed_config: configs/visual_embedding/dinov2_base_reg.json
+
+  # visual_embed_config: configs/visual_embedding/dinov2_large.json
+  # visual_embed_config: configs/visual_embedding/dinov2_large_reg.json
+
+  # visual_embed_config: configs/visual_embedding/dinov2_giant.json
+  # visual_embed_config: configs/visual_embedding/dinov2_giant_reg.json
+
+  # visual_embed_config: configs/visual_embedding/rgb_pixel.json
+  # visual_embed_config: configs/visual_embedding/zero_pixel.json
+  # visual_embed_config: configs/visual_embedding/vae.json
+
+  # visual_embed_config: configs/visual_embedding/clip_vit_tinyclip.json
+  # visual_embed_config: configs/visual_embedding/in22k_convnext.json
+  # visual_embed_config: configs/visual_embedding/in1k_mobilenetv3.json
+
+  # visual_embed_config: configs/visual_embedding/clip_vit_b_32.json
+
+  # visual_embed_config: configs/visual_embedding/clip_resnet50.json
+  # visual_embed_config: configs/visual_embedding/clip_resnet50_all.json
+
+
+
+  # llm: HuggingFaceTB/SmolLM2-135M-Instruct
+  # llm: HuggingFaceTB/SmolLM2-360M-Instruct
+  # llm: HuggingFaceTB/SmolLM2-1.7B-Instruct
+
+
+  # visual_embed_config: configs/visual_embedding/dinov2_small.json
+  # visual_embed_config: configs/visual_embedding/vae.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/patch/patch_10_per_side_random.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_felzenszwalb@0.1k.json
+  # visual_tokenizer_config: configs/visual_tokenizer/superpixel/superpixel_slic.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_large_sa1b_2ep@0.1.json
+  # visual_tokenizer_config: configs/visual_tokenizer/directsam/directsam_tiny_sa1b_2ep@0.1.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_mask2former_large.json
+
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_tiny.json
+  # visual_tokenizer_config: configs/visual_tokenizer/panoptic/panoptic_oneformer_large.json

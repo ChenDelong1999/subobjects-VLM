@@ -1,6 +1,6 @@
 {
   "token_roi_resolution": 32,
   "vision_encoder_type": "timm_backbone",
-  "vision_encoder_name": "vit_giant_patch14_reg4_dinov2.lvd142m"
+  "vision_encoder_name": "vit_medium_patch16_clip_224.tinyclip_yfcc15m"
 }
   

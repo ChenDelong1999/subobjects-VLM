@@ -36,9 +36,9 @@ if __name__ == '__main__':
 
     os.makedirs(output_dir, exist_ok=True)
 
-    if len(os.listdir(output_dir)) == len(dataset):
-        print(f'Output directory {output_dir} already has {len(dataset)} files. Exiting...')
-        sys.exit(0)
+    # if len(os.listdir(output_dir)) == len(dataset):
+    #     print(f'Output directory {output_dir} already has {len(dataset)} files. Exiting...')
+    #     sys.exit(0)
 
     config = json.load(open(args.tokenizer_config, 'r'))
     print(config)

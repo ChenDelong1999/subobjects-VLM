@@ -1,3 +1,4 @@
+# directsam.py
 import cv2
 import numpy as np
 from PIL import Image
@@ -119,6 +120,14 @@ class DirectSAMTokenizer:
 
         probabilities = torch.sigmoid(upsampled_logits)[:, 0].numpy()
         boundaries = probabilities > self.threshold
+
+        # import matplotlib.pyplot as plt
+        # plt.figure(figsize=(10, 10))
+        # plt.imshow(probabilities[0], cmap='PuBu')
+        # plt.axis('off')
+        # plt.show()
+
+
         return probabilities, boundaries
     
     def reassemble_masks(self, probabilities, boundaries, positions):
@@ -216,12 +225,18 @@ class DirectSAMTokenizer:
 
         images = self.load_images(images)
 
+        import time
+
+
         if self.crop > 1:
             patches, positions = self.split_images_into_patches(images)
             probabilities, boundaries = self.directsam_forward(patches)
             masks_dict = self.reassemble_masks(probabilities, boundaries, positions)
         else:
+            start = time.time()
             probabilities, boundaries = self.directsam_forward(images)
+            print(f'Segformer time: {time.time()-start}')
+            start = time.time()
             masks_dict = {}
             for idx in range(len(images)):
                 boundary = boundaries[idx]
@@ -229,6 +244,7 @@ class DirectSAMTokenizer:
                 masks = self.boundary_to_mask(boundary, prob)
                 # Store masks with positional information (top=0, left=0)
                 masks_dict[idx] = [{'mask': mask, 'top': 0, 'left': 0} for mask in masks]
+            print(f'Watershed time:                          {time.time()-start}')
 
         batch_masks = self.combine_and_sort_masks(masks_dict)
 
@@ -240,14 +256,25 @@ class DirectSAMTokenizer:
         Input:      A numpy array (H, W) representing the boundary image, True for boundary pixels and False for non-boundary pixels.
         Returns:    A numpy array of binary masks (n_masks, H, W), where each mask corresponds to a connected component in the boundary image.
         """
-        num_objects, labels = cv2.connectedComponents(
-            (~boundary).astype(np.uint8), 
-            connectivity=4, 
-            )
-        labels = watershed(probability, markers=labels)
+        if self.threshold<1:
+            num_objects, markers = cv2.connectedComponents(
+                (~boundary).astype(np.uint8), 
+                connectivity=4, 
+                )
+        else:
+            markers = self.threshold
 
-        masks = np.zeros((num_objects-1, *boundary.shape), dtype=bool)
-        for i in range(1, num_objects):
+        labels = watershed(
+            probability, 
+            markers=markers,
+            )
+
+        masks = np.zeros((
+            # num_objects-1,
+            np.max(labels)+1,
+             *boundary.shape), dtype=bool)
+        
+        for i in range(1, np.max(labels)+1):
             masks[i-1] = labels == i
 
         # sort by area
